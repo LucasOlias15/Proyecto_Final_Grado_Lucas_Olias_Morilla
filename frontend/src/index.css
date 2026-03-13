@@ -1,0 +1,186 @@
+@import "tailwindcss";
+@plugin "daisyui"; 
+@theme {
+  /* Jungle Teal */
+  --color-jungle_teal: #007f5f;
+  --color-jungle_teal-100: #001a13;
+  --color-jungle_teal-200: #003326;
+  --color-jungle_teal-300: #004d39;
+  --color-jungle_teal-400: #00664d;
+  --color-jungle_teal-500: #007f5f;
+  --color-jungle_teal-600: #00cc99;
+  --color-jungle_teal-700: #1affc6;
+  --color-jungle_teal-800: #66ffd9;
+  --color-jungle_teal-900: #b3ffec;
+
+  /* Sea Green */
+  --color-sea_green: #2b9348;
+  --color-sea_green-100: #081d0e;
+  --color-sea_green-200: #113a1d;
+  --color-sea_green-300: #19582b;
+  --color-sea_green-400: #227539;
+  --color-sea_green-500: #2b9348;
+  --color-sea_green-600: #39c460;
+  --color-sea_green-700: #6ad488;
+  --color-sea_green-800: #9be2af;
+  --color-sea_green-900: #cdf1d7;
+
+  /* Bright Fern */
+  --color-bright_fern: #55a630;
+  --color-bright_fern-100: #11210a;
+  --color-bright_fern-200: #224213;
+  --color-bright_fern-300: #33641d;
+  --color-bright_fern-400: #448527;
+  --color-bright_fern-500: #55a630;
+  --color-bright_fern-600: #71ca48;
+  --color-bright_fern-700: #94d775;
+  --color-bright_fern-800: #b8e4a3;
+  --color-bright_fern-900: #dbf2d1;
+
+  /* Lime Moss */
+  --color-lime_moss: #80b918;
+  --color-lime_moss-100: #1a2505;
+  --color-lime_moss-200: #334a0a;
+  --color-lime_moss-300: #4d6f0e;
+  --color-lime_moss-400: #679413;
+  --color-lime_moss-500: #80b918;
+  --color-lime_moss-600: #a2e32a;
+  --color-lime_moss-700: #baea5f;
+  --color-lime_moss-800: #d1f194;
+  --color-lime_moss-900: #e8f8ca;
+
+  /* Yellow Green */
+  --color-yellow_green: #aacc00;
+  --color-yellow_green-100: #222900;
+  --color-yellow_green-200: #445200;
+  --color-yellow_green-300: #667a00;
+  --color-yellow_green-400: #88a300;
+  --color-yellow_green-500: #aacc00;
+  --color-yellow_green-600: #d6ff0a;
+  --color-yellow_green-700: #e0ff47;
+  --color-yellow_green-800: #ebff85;
+  --color-yellow_green-900: #f5ffc2;
+
+  /* Lemon Lime */
+  --color-lemon_lime: #bfd200;
+  --color-lemon_lime-100: #262a00;
+  --color-lemon_lime-200: #4d5400;
+  --color-lemon_lime-300: #737d00;
+  --color-lemon_lime-400: #99a700;
+  --color-lemon_lime-500: #bfd200;
+  --color-lemon_lime-600: #ebff0e;
+  --color-lemon_lime-700: #f0ff4a;
+  --color-lemon_lime-800: #f5ff87;
+  --color-lemon_lime-900: #faffc3;
+
+  /* Yellow */
+  --color-yellow: #eeef20;
+  --color-yellow-100: #333304;
+  --color-yellow-200: #656507;
+  --color-yellow-300: #98980b;
+  --color-yellow-400: #caca0e;
+  --color-yellow-500: #eeef20;
+  --color-yellow-600: #f3f34c;
+  --color-yellow-700: #f6f679;
+  --color-yellow-800: #f9f9a5;
+  --color-yellow-900: #fcfcd2;
+}
+
+
+@layer components {
+  .hover-3d {
+    perspective: 1000px;
+    position: relative;
+    display: inline-block;
+  }
+
+  /* Esto emula el comportamiento de daisyUI para que la tarjeta rote */
+  .hover-3d > div:first-child {
+    transition: transform 0.4s ease-out;
+    transform-style: preserve-3d;
+  }
+
+  /* Aquí se definen las 8 zonas invisibles que detectan el ratón */
+  .hover-3d > div:not(:first-child) {
+    position: absolute;
+    width: 33.33%;
+    height: 33.33%;
+    z-index: 10;
+  }
+
+  /* Ejemplo de cómo rotan (esto es lo que hace daisyUI por debajo) */
+  .hover-3d > div:nth-child(2):hover ~ div:first-child { transform: rotateX(10deg) rotateY(-10deg); }
+  .hover-3d > div:nth-child(3):hover ~ div:first-child { transform: rotateX(10deg) rotateY(0deg); }
+  .hover-3d > div:nth-child(4):hover ~ div:first-child { transform: rotateX(10deg) rotateY(10deg); }
+  /* ... y así sucesivamente */
+}
+/* --- ESTILOS DEL MERCHANT BANNER (Con variables exactas) --- */
+
+/* 1. MODO CLARO (Fondo Verde, Letras Blancas, Botón Amarillo) */
+.banner-container {
+  /* Usamos jungle_teal y sea_green para un degradado de bosque a mar */
+  background: linear-gradient(to bottom right, var(--color-jungle_teal), var(--color-sea_green));
+  color: #ffffff;
+}
+.banner-btn-main {
+  /* Usamos tu yellow-500 puro */
+  background-color: var(--color-yellow-500); 
+  color: var(--color-jungle_teal);
+}
+.banner-btn-main:hover {
+  background-color: var(--color-yellow-600);
+}
+.banner-btn-outline {
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #ffffff;
+}
+
+/* 2. MODO OSCURO (Fondo Amarillo, Letras Verdes, Botón Verde) */
+[data-theme="dark"] .banner-container {
+  /* Usamos lime_moss y yellow para un degradado cítrico espectacular */
+  background: linear-gradient(to bottom right, var(--color-lime_moss), var(--color-yellow-500)); 
+  color: var(--color-jungle_teal-200);
+}
+[data-theme="dark"] .banner-btn-main {
+  /* Usamos jungle_teal como contraste fuerte sobre el amarillo */
+  background-color: var(--color-jungle_teal); 
+  color: #ffffff;
+}
+[data-theme="dark"] .banner-btn-main:hover {
+  background-color: var(--color-sea_green);
+}
+[data-theme="dark"] .banner-btn-outline {
+  /* Borde oscuro para que se vea sobre el fondo amarillo */
+  border-color: var(--color-jungle_teal-300); 
+  color: var(--color-jungle_teal-200);
+}
+
+/* --- ESTILOS DE LA CINTA DEL MAPA (Conectados a daisyUI) --- */
+
+/* 1. MODO CLARO */
+.map-ribbon-main {
+  background: linear-gradient(to right, var(--color-yellow-400), var(--color-yellow-500));
+}
+.map-ribbon-bg {
+  background-color: var(--color-jungle_teal);
+}
+
+/* Apuntamos DIRECTAMENTE a las líneas del SVG y forzamos el color verde oscuro */
+.map-ribbon-icon svg {
+  color: var(--color-jungle_teal-200) !important;
+  stroke: var(--color-jungle_teal-200) !important;
+}
+
+/* 2. MODO OSCURO */
+[data-theme="dark"] .map-ribbon-main {
+  background: linear-gradient(to right, var(--color-jungle_teal), var(--color-sea_green-500));
+}
+[data-theme="dark"] .map-ribbon-bg {
+  background-color: var(--color-yellow-400);
+}
+
+/* Apuntamos DIRECTAMENTE a las líneas del SVG y forzamos el color blanco */
+[data-theme="dark"] .map-ribbon-icon svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
