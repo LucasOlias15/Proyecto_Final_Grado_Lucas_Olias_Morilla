@@ -4,11 +4,13 @@ import { Home } from './pages/Home'; // Asegúrate de tenerlo des-comentado
 import { MapPage } from "./pages/MapPage"; 
 import { Products } from './pages/Products';
 import { ShopDetail } from './pages/ShopDetail';
+import { LoginPage } from './pages/LoginPage';
+import { StorePanelPage } from './pages/StorePanelPage'; 
 
 function App() {
   return (
-    <MainLayout>
-      <Switch>
+      <MainLayout>
+        <Switch>
         {/* 1. Ruta principal: Home */}
         <Route path="/" component={Home} />
         
@@ -21,20 +23,26 @@ function App() {
         {/* 4. Detalle de la tienda */}
         <Route path="/tienda/:id" component={ShopDetail} />
 
+        {/* 5. Ruta de login */}
+        <Route path="/login" component={LoginPage} />
+
+        {/* 6. Panel de gestión de la tienda (solo para el dueño) */}
+        <Route path="/panel-tienda/:id" component={StorePanelPage} />
+
         {/* Ruta 404: Captura errores de URL */}
-        <Route>
-          <div className="flex flex-col items-center py-20">
-            <h1 className="text-4xl font-bold">404 - Página no encontrada</h1>
-            <button 
-              className="btn btn-ghost mt-4" 
-              onClick={() => window.location.href='/'}
-            >
-              Volver al inicio
-            </button>
-          </div>
-        </Route>
-      </Switch>
-    </MainLayout>
+          <Route>
+            <div className="flex flex-col items-center py-20">
+              <h1 className="text-4xl font-bold">404 - Página no encontrada</h1>
+              <button 
+                className="btn btn-ghost mt-4" 
+                onClick={() => window.location.href='/'}
+              >
+                Volver al inicio
+              </button>
+            </div>
+          </Route>
+        </Switch>
+      </MainLayout>
   );
 }
 

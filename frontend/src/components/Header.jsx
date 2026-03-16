@@ -2,8 +2,15 @@ import { Logo } from './Logo';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { CartDrawer } from './CartDrawer'; 
+import { Link, useLocation } from 'wouter'; 
+import { useCartStore } from '../store/useCartStore';
+
 
 export const Header = () => {
+
+    const totalItems = useCartStore((state) => state.getTotalItems());
+
+
     const [isDark, setIsDark] = useState(() => {
         if (typeof document !== 'undefined') {
             const currentTheme = document.documentElement.getAttribute('data-theme');
@@ -35,6 +42,29 @@ export const Header = () => {
     };
 
     const [isCartOpen, setIsCartOpen] = useState(false); 
+
+   const [user, setUser] = useState(null);
+    const [location] = useLocation(); 
+
+   useEffect(() => {
+        try {
+            const storedUser = localStorage.getItem("user");
+            if (storedUser) {
+                setUser(JSON.parse(storedUser));
+            } else {
+                setUser(null); // ✨ IMPORTANTE: Por si cerramos sesión
+            }
+        } catch (err) {
+            console.error("Error leyendo el usuario", err);
+        }
+    }, [location]);
+
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        setUser(null);
+        window.location.href = "/"; // Redirigir a inicio
+    };
 
     return (
         <>
@@ -141,27 +171,51 @@ export const Header = () => {
             </svg>
             {/* El badge ahora flota fuera del círculo para no romper la simetría interna */}
             <span className="badge badge-xs md:badge-sm indicator-item bg-yellow-400 border-2 border-base-100 text-jungle_teal-200 font-black">
-                2
+                {totalItems}
             </span>
         </div>
           </motion.div>
     </button>
 
-    {/* 4. BOTÓN USUARIO */}
-    <div className="dropdown dropdown-end">
-        <label tabIndex={0} className="btn btn-circle btn-sm md:btn-md bg-jungle_teal border-2 border-jungle_teal text-base-100 hover:bg-transparent hover:text-jungle_teal transition-all shadow-md flex items-center justify-center overflow-hidden cursor-pointer">
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10" /><circle cx="12" cy="10" r="4" /><path d="M18 20a6 6 0 0 0-12 0" />
-            </svg>
-        </label>
-        <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-2xl z-110 w-52 p-2 shadow-2xl border border-base-200 mt-4 font-bold">
-            <li><a className="text-jungle_teal hover:bg-jungle_teal/10">Mi Perfil</a></li>
-            <li><a>Mis Pedidos</a></li>
-            <div className="divider my-1"></div>
-            <li><a className="text-error hover:bg-error/10">Cerrar sesión</a></li>
-        </ul>
-    </div>
+   {/* 4. BOTÓN USUARIO DINÁMICO */}
+<div className="dropdown dropdown-end">
+    <label tabIndex={0} className="btn btn-circle btn-sm md:btn-md bg-jungle_teal border-2 border-jungle_teal text-base-100 hover:bg-transparent hover:text-jungle_teal transition-all shadow-md flex items-center justify-center overflow-hidden cursor-pointer">
+        {/* Si hay usuario, podríamos mostrar su inicial o un icono diferente */}
+        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10" /><circle cx="12" cy="10" r="4" /><path d="M18 20a6 6 0 0 0-12 0" />
+        </svg>
+    </label>
+    
+    <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-2xl z-[110] w-52 p-2 shadow-2xl border border-base-200 mt-4 font-bold">
+        {user?.nombre ? (
+            <>
+                {/* INFO USUARIO */}
+                <li className="menu-title px-4 py-2 text-xs opacity-50 uppercase">Hola, {user.nombre}</li>
+                
+                {/* SI ES DUEÑO: Botón especial brillante */}
+                {user.rol === 'dueño' && (
+                    <li>
+                        <Link href={`/panel-tienda/${user.id_comercio}`} className="text-jungle_teal bg-jungle_teal/10 hover:bg-jungle_teal hover:text-white transition-colors">
+                            Gestionar mi comercio
+                        </Link>
+                    </li>
+                )}
 
+                <li><Link href="/perfil">Mi Perfil</Link></li>
+                <li><a>Mis Pedidos</a></li>
+                <div className="divider my-1"></div>
+                <li><button onClick={handleLogout} className="text-error hover:bg-error/10">Cerrar sesión</button></li>
+            </>
+        ) : (
+            <>
+                {/* SI NO ESTÁ LOGUEADO */}
+                <li><Link href="/login" className="text-jungle_teal">Iniciar Sesión</Link></li>
+                <li><Link href="/registro">Crear Cuenta</Link></li>
+            </>
+        )}
+    </ul>
+
+</div>
 </div>
         </header>
         <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />

@@ -7,7 +7,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { Router } from "express";  
-import userRouter from "./routes/userRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 import comercioRouter from "./routes/comercioRoutes.js";
 import productRouter from "./routes/productRoutes.js";
 
@@ -18,7 +18,7 @@ app.use('/api/productos', productRouter);
 
 app.use('/api/comercios', comercioRouter); 
 
-app.use('/api/users', userRouter);
+app.use('/api/users', userRoutes);
 
 app.get("/", (req,res) => {
     // Respuesta generica para la ruta raíz

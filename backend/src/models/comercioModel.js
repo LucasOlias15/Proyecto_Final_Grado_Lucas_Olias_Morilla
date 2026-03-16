@@ -33,5 +33,18 @@ async function getAllComercios() {
     }
 }
 
+export async function getComercioByUsuarioId(idUsuario) {
+    try {
+        // Buscamos el comercio que pertenece a este usuario
+        const [rows] = await pool.query('SELECT * FROM comercio WHERE id_usuario = ?', [idUsuario]);
+        
+        // Si hay resultados, devolvemos el primer comercio (el dueño). Si no, devolvemos null
+        return rows.length > 0 ? rows[0] : null;
+    } catch (error) {
+        console.error('Error al buscar comercio por usuario:', error);
+        throw error;
+    }
+}
+
 
 export { createComercio, getComercioById, getAllComercios };

@@ -16,4 +16,5 @@ router.get("/:id", obtenerComercioPorId);
 // GET /api/comercios/
 router.get("/", obtenerTodosLosComercios);
 
+
 export default router;

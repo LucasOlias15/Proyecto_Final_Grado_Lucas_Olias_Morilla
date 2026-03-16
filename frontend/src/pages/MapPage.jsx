@@ -38,7 +38,7 @@ const customIcon = (type) =>
     iconAnchor: [24, 24] // Centrado perfecto
   });
 
-/* ---------------- CONTROLADOR MAPA (DEL ARCHIVO 2) ---------------- */
+
 const MapController = ({ center, zoom }) => {
   const map = useMap();
   useEffect(() => {
@@ -48,7 +48,7 @@ const MapController = ({ center, zoom }) => {
 };
 
 export const MapPage = () => {
-  // 📍 Estado inicial apuntando a Alcamo, Sicilia por defecto
+  //  Estado inicial 
   const [mapCenter, setMapCenter] = useState([37.978, 12.961]);
   const [zoomLevel, setZoomLevel] = useState(15);
 
@@ -64,7 +64,6 @@ export const MapPage = () => {
   const searchParams = new URLSearchParams(searchString);
   const searchQuery = searchParams.get("search")?.toLowerCase() || localSearch.toLowerCase();
 
-  /* ---------------- CARGAR COMERCIOS ---------------- */
   useEffect(() => {
     const cargar = async () => {
       setLoading(true);
@@ -237,8 +236,7 @@ export const MapPage = () => {
           </MapContainer>
 
           {/* CONTROLES */}
-<div className="absolute right-6 top-24 flex flex-col gap-3 z100">
-              <button
+<div className="absolute right-6 top-24 flex flex-col gap-3 z-100">            <button
               onClick={handleGeoLocation}
               className="w-12 h-12 rounded-xl bg-jungle_teal text-white shadow-lg hover:scale-110 transition flex items-center justify-center"
               title="Mi ubicación"
@@ -284,7 +282,7 @@ export const MapPage = () => {
                 initial={{ opacity:0, y:40 }}
                 animate={{ opacity:1, y:0 }}
                 exit={{ opacity:0, y:40 }}
-                className="absolute bottom-6 right-6 w-350px bg-white p-6 rounded-3xl shadow-2xl z-100"
+                className="absolute bottom-6 right-6 w-87.5 bg-white p-6 rounded-3xl shadow-2xl z-100"
               >
                 <img
                   src={selectedShop.img}

@@ -1,4 +1,5 @@
 import { getUserByEmail, createUser, getUserById } from "../models/userModel.js";
+import { getComercioByUsuarioId } from "../models/comercioModel.js";
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
@@ -44,22 +45,45 @@ export const loginUsuario = async (req, res) => {
             return res.status(401).json({ error: "Contraseña incorrecta" });
         }
 
-        // Si el login es exitoso, generamos un token JWT con la información del usuario
-        // MODIFICADO: Ahora el ID del usuario está en la columna 'id_usuario'
+        const comercio = await getComercioByUsuarioId(user.id_usuario);
+
+        // Asignamos el rol por defecto
+        let rolAsignado = "usuario";
+        let comercioId = null;
+
+        // Si la base de datos nos devuelve un comercio, ¡es un dueño!
+        if (comercio) {
+            rolAsignado = "dueño";
+            comercioId = comercio.id_comercio;
+        }
+
         const token = jwt.sign(
-            { id: user.id_usuario, email: user.email },
+            { 
+                id: user.id_usuario, 
+                email: user.email,
+                rol: rolAsignado,         // Guardamos su rol en el token
+                id_comercio: comercioId   // Guardamos su tienda (o null) en el token
+            },
             process.env.JWT_SECRET,
-            //TODO : El token expira en 30 días, pero podríamos hacer que expire antes para mayor seguridad
-            { expiresIn: '30d' });
-        
+                        //TODO : El token expira en 30 días, pero podríamos hacer que expire antes para mayor seguridad
+
+            { expiresIn: '30d' }
+        );
+
         // Enviamos la respuesta al cliente con el token y algunos datos básicos del usuario
-        return res.status(200).json({
+       return res.status(200).json({
             message: "Login exitoso",
             token: token,
-            user: { id: user.id_usuario, nombre: user.nombre } // Enviamos datos básicos para el Front
+            user: { 
+                id: user.id_usuario, 
+                nombre: user.nombre,
+                rol: rolAsignado,
+                id_comercio: comercioId
+            } 
         });
         
     } catch (error) {
+        console.error("Error en login:", error); // Útil para depurar
         res.status(500).json({ error: "Error en el login" });
     }
 };
