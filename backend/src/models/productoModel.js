@@ -64,4 +64,26 @@ async function deleteProducto(id_producto) {
     }
 }
 
-export { createProducto, getProductosByComercio, getProductoById, updateProducto , deleteProducto};
+async function getAllProductosWithComercio() {
+    try {
+        // Seleccionamos solo lo necesario
+        const [result] = await pool.query(`
+            SELECT 
+                p.id_producto, 
+                p.nombre, 
+                p.precio, 
+                p.imagen, 
+                p.descripcion,
+                c.nombre AS nombre_comercio, 
+                c.categoria
+            FROM producto p
+            JOIN comercio c ON p.id_comercio = c.id_comercio;
+        `);
+        return result; 
+    } catch (error) {
+        console.error("Error en el modelo:", error);
+        throw error;
+    }
+}
+
+export { createProducto, getProductosByComercio, getProductoById, updateProducto , deleteProducto, getAllProductosWithComercio};

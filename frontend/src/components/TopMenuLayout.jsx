@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Header } from "./Header"; // Asegúrate de importar tu Header
+import { RegisterShopModal } from "./RegisterShopModal";
 import { Banana, Croissant, Beef, Leaf, House, PackageSearch, ShoppingBag, LayoutList, Wrench } from "lucide-react";
 
 export const TopMenuLayout = ({ children }) => {
@@ -18,9 +19,8 @@ export const TopMenuLayout = ({ children }) => {
             {/* 2. EL MENÚ DESPLEGABLE (Estilo Amazon) */}
             {/* z-[40] para que esté por debajo del Header (si el header tiene z-[50]) */}
             <div
-                className={`fixed top-0 left-0 w-full bg-base-100 shadow-2xl border-b border-base-200 z-[40] transition-transform duration-500 ease-in-out ${isMenuOpen ? "translate-y-[80px]" : "-translate-y-full"
+                className={`fixed top-0 left-0 w-full bg-base-100 shadow-2xl border-b border-base-200 z-40 transition-transform duration-500 ease-in-out ${isMenuOpen ? "translate-y-20" : "-translate-y-full"
                     }`}
-            // Nota: translate-y-[80px] asume que tu Header mide unos 80px de alto. 
             // Así el menú cae justo por debajo de él.
             >
                 {/* Contenido del menú */}
@@ -31,8 +31,9 @@ export const TopMenuLayout = ({ children }) => {
                                 <LayoutList/>
                             </span> Menú Principal
                         </div>
-                        <li><a className="text-lg font-medium hover:text-jungle_teal"><House/> Inicio</a></li>
-                        <li><a className="text-lg font-medium hover:text-jungle_teal"><PackageSearch/> Mis Productos</a></li>
+                        <li><a href="/" className="text-lg font-medium hover:text-jungle_teal"><House/> Inicio</a></li>
+                        {/*TODO Enlazar href para productos del usuario logueado y href a mis compras en caso de haber compras */}
+                        <li><a href="/tienda/:id"className="text-lg font-medium hover:text-jungle_teal"><PackageSearch/> Mis Productos</a></li>
                         <li><a className="text-lg font-medium hover:text-jungle_teal"><ShoppingBag/> Mis Compras</a></li>
                         <div className="divider"></div>
                         <li><a className="opacity-70"> <Wrench/> Soporte técnico</a></li>
@@ -87,12 +88,12 @@ export const TopMenuLayout = ({ children }) => {
                         </div>
 
                         {/* Banner promocional pequeñito */}
-                        <div className="mt-auto bg-gradient-to-r from-jungle_teal to-sea_green p-4 rounded-xl text-white flex items-center justify-between relative z-10 shadow-lg">
+                        <div className="mt-auto bg-linear-to-r from-jungle_teal to-sea_green p-4 rounded-xl text-white flex items-center justify-between relative z-10 shadow-lg">
                             <div>
                                 <h4 className="font-black text-sm md:text-base">¿Tienes un negocio local?</h4>
                                 <p className="text-xs md:text-sm opacity-90">Únete a LocalMarkt gratis</p>
                             </div>
-                            <a className="btn btn-sm bg-white text-jungle_teal border-none hover:bg-base-200">Empezar</a>
+                            <a onClick={() => document.getElementById('register_shop_modal').showModal()} className="btn btn-sm bg-white text-jungle_teal border-none hover:bg-base-200">Empezar</a>
                         </div>
 
                     </div>
@@ -103,7 +104,7 @@ export const TopMenuLayout = ({ children }) => {
             {/* Si el menú está abierto, oscurecemos el fondo para que el usuario se centre en el menú */}
             {isMenuOpen && (
                 <div
-                    className="fixed inset-0 bg-black/40 z-[30] backdrop-blur-sm"
+                    className="fixed inset-0 bg-black/40 z-30 backdrop-blur-sm"
                     onClick={toggleMenu} // Si hacen clic fuera, se cierra
                 ></div>
             )}

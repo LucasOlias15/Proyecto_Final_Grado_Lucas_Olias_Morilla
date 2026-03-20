@@ -35,7 +35,7 @@ export const MerchantBanner = () => {
               <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start mb-8">
                 
                 {/* BOTÓN PRINCIPAL */}
-<button 
+                <button 
                   onClick={() => document.getElementById('register_shop_modal').showModal()}
                   className="banner-btn-main btn border-none rounded-2xl px-8 h-16 text-lg font-bold shadow-lg transition-transform hover:scale-105"
                 >

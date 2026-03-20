@@ -1,4 +1,4 @@
-import { createProducto, getProductosByComercio, getProductoById, updateProducto, deleteProducto } from "../models/productoModel.js";
+import { createProducto, getProductosByComercio, getProductoById, updateProducto, deleteProducto , getAllProductosWithComercio} from "../models/productoModel.js";
 import { getComercioById } from "../models/comercioModel.js";
 
 // Controlador para registrar un nuevo producto
@@ -10,10 +10,10 @@ export const registrarProducto = async (req, res) => {
 
         const precioRegExp = /^\d+(\.\d{1,2})?$/;
         const stockRegExp = /^\d+$/;
-        const nombreRegExp = /^[A-Za-zÑñÁáÉéÍíÓóÚú\s'-]{2,50}$/;
+        const nombreRegExp = /^[a-zA-Z0-9ÑñÁáÉéÍíÓóÚú\s'\-.,()]{2,100}$/;
 
         if (!nombreRegExp.test(nombre)) {
-            return res.status(400).json({ error: "Nombre inválido. Solo se permiten letras, espacios, guiones y apóstrofes (2-50 caracteres)." });
+            return res.status(400).json({ error: "Nombre inválido. Solo se permiten letras, espacios, guiones y apóstrofes (2-100 caracteres)." });
         }
         if (!precioRegExp.test(String(precio))) {
             return res.status(400).json({ error: "Precio inválido. Debe ser un número positivo (ej: 10.99)." });
@@ -155,5 +155,19 @@ export const eliminarProducto = async (req, res) => {
     } catch (error) {
         console.error("❌ Error en eliminarProducto:", error);
         return res.status(500).json({ error: "Error al eliminar el producto" });
+    }
+};
+
+export const obtenerTodosLosProductos = async (req, res) => {
+    try {
+        // 1. Llamamos a la función del modelo
+        const productos = await getAllProductosWithComercio();
+
+        // 2. Respondemos al frontend con un status 200 y el JSON
+        return res.status(200).json(productos);
+
+    } catch (error) {
+        console.error("❌ Error en obtenerTodosLosProductos:", error);
+        return res.status(500).json({ error: "Error al obtener los productos del mercado" });
     }
 };

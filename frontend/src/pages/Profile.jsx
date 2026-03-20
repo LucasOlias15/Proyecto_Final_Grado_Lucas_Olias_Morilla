@@ -1,3 +1,4 @@
+import { UserKey, UserRoundKey } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useLocation, Link } from "wouter";
 
@@ -120,14 +121,9 @@ const response = await fetch(`http://localhost:3000/api/users/perfil`, {
             <div className="w-32 h-32 rounded-[2.5rem] p-1.5 bg-linear-to-tr from-jungle_teal to-bright_fern shadow-xl">
               <div className="w-full h-full rounded-[2.2rem] bg-base-100 flex items-center justify-center">
                 {user.rol === 'dueño' ? (
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-16 h-16 text-base-content opacity-90 drop-shadow-sm">
-                    <path d="M5.223 2.25c-.497 0-.974.198-1.325.55l-1.3 1.298A3.75 3.75 0 001.5 6.75v.528c0 .359.128.706.357.982l.94 1.139a2.993 2.993 0 00-.297.886l-.416 3.332A1.5 1.5 0 003.57 15.3l.02.138A.75.75 0 004.33 16h15.34a.75.75 0 00.74-.612l.02-.138a1.5 1.5 0 00-1.478-1.683l-.416-3.332a2.992 2.992 0 00-.297-.886l.94-1.139a1.493 1.493 0 00.357-.982V6.75a3.75 3.75 0 00-1.098-2.652l-1.3-1.298a1.875 1.875 0 00-1.325-.55H5.223z" />
-                    <path fillRule="evenodd" d="M3 20.25v-3.375h18v3.375c0 .621-.504 1.125-1.125 1.125h-15.75c-.621 0-1.125-.504-1.125-1.125zm9-2.25a.75.75 0 00-.75.75v1.5c0 .414.336.75.75.75h3a.75.75 0 00.75-.75v-1.5a.75.75 0 00-.75-.75h-3z" clipRule="evenodd" />
-                  </svg>
+                  <UserRoundKey className="w-12 h-12"/>
                 ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-16 h-16 text-base-content opacity-90 drop-shadow-sm">
-                    <path fillRule="evenodd" d="M18.685 19.097A9.723 9.723 0 0021.75 12c0-5.385-4.365-9.75-9.75-9.75S2.25 6.615 2.25 12a9.723 9.723 0 003.065 7.097A9.716 9.716 0 0012 21.75a9.716 9.716 0 006.685-2.653zm-12.54-1.285A7.486 7.486 0 0112 15a7.486 7.486 0 015.855 2.812A8.224 8.224 0 0112 20.25a8.224 8.224 0 01-5.855-2.438zM15.75 9a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" clipRule="evenodd" />
-                  </svg>
+                  <UserRoundCog className="w-12 h-12"/>
                 )}
               </div>
             </div>

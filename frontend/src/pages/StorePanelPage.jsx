@@ -18,15 +18,29 @@ export const StorePanelPage = () => {
     const [store, setStore] = useState(null);
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
-    
+
+    // Estado para las imágenes
+    const [imageFile, setImageFile] = useState(null);
+
+    // Estado para toast errores
+    const [toast, setToast] = useState(null);
+
+    // Estado para toast de eroor
+    const mostrarNotificacion = (mensaje, tipo = "success") => {
+    setToast({ mensaje, tipo });
+    setTimeout(() => {
+        setToast(null);
+    }, 3000); // 3000 milisegundos = 3 segundos
+};
+
     // Estados para controlar el modal y el formulario de añadir/editar producto
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [newProduct, setNewProduct] = useState({
         nombre: "", descripcion: "", precio: "", stock: "", imagen: ""
     });
-    
+
     // Si es null, estamos creando. Si tiene un número, estamos editando.
-    const [editingId, setEditingId] = useState(null); 
+    const [editingId, setEditingId] = useState(null);
 
     // 💡 2. CARGA INICIAL DE DATOS (Se ejecuta al abrir la página)
     useEffect(() => {
@@ -50,29 +64,39 @@ export const StorePanelPage = () => {
     }, [storeId]);
 
     // 💡 3. FUNCIÓN ELIMINAR (Borra en backend y actualiza frontend)
-    const handleDeleteProduct = async (productId) => {
-        if (!confirm("¿Estás seguro de que quieres eliminar este producto?")) return;
+const handleDeleteProduct = async (productId) => {
+    //TODO lo de aqui abajo
+    // Nota: El 'confirm' nativo lo dejamos por ahora porque detiene la ejecución 
+    // y es útil, pero en un futuro podrías cambiarlo por un Modal de DaisyUI 😉
+    if (!confirm("¿Estás seguro de que quieres eliminar este producto?")) return;
 
-        try {
-            const token = localStorage.getItem("token");
-            const res = await fetch(`http://localhost:3000/api/productos/${productId}`, {
-                method: "DELETE",
-                headers: { 
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}` 
-                },
-            });
+    try {
+        const token = localStorage.getItem("token");
+        const res = await fetch(`http://localhost:3000/api/productos/${productId}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+        });
 
-            if (res.ok) {
-                setProducts(products.filter(p => p.id_producto !== productId));
-                alert("Producto eliminado correctamente");
-            } else {
-                alert("Error al eliminar el producto");
-            }
-        } catch (error) {
-            console.error("Error en la petición:", error);
+        if (res.ok) {
+            // Eliminamos el producto de la lista en pantalla
+            setProducts(products.filter(p => p.id_producto !== productId));
+            
+            // 👇 ADIÓS ALERT, HOLA TOAST 👇
+            mostrarNotificacion("Producto eliminado correctamente", "success");
+        } else {
+            // 👇 ADIÓS ALERT, HOLA TOAST 👇
+            mostrarNotificacion("Error al eliminar el producto", "error");
         }
-    };
+    } catch (error) {
+        console.error("Error en la petición:", error);
+        
+        // 👇 NOTIFICACIÓN EXTRA POR SI FALLA LA CONEXIÓN 👇
+        mostrarNotificacion("Error de conexión al intentar eliminar", "error");
+    }
+};
 
     // 💡 4. ABRIR MODALES (Preparar el estado antes de abrir)
     const handleOpenAdd = () => {
@@ -95,52 +119,102 @@ export const StorePanelPage = () => {
     };
 
     // 💡 5. FUNCIÓN GUARDAR INTELIGENTE (Sirve para Añadir y Editar)
-    const handleSaveProduct = async (e) => {
-        e.preventDefault(); 
+   // 💡 5. FUNCIÓN GUARDAR INTELIGENTE (Sirve para Añadir y Editar)
+const handleSaveProduct = async (e) => {
+    e.preventDefault();
+
+    // 1. Validaciones básicas
+    if (!newProduct.nombre || !newProduct.precio) {
+        mostrarNotificacion("Por favor, rellena los campos obligatorios.", "error");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("nombre", newProduct.nombre);
+    formData.append("precio", newProduct.precio);
+    formData.append("descripcion", newProduct.descripcion);
+    formData.append("stock", newProduct.stock);
+    
+    // Le pasamos el ID del comercio que sacamos de la URL (params.id)
+    formData.append("id_comercio", storeId); 
+
+    if (imageFile) {
+        formData.append("imagen", imageFile);
+    } else if (!editingId) {
+        // Si estamos creando uno nuevo y no hay imagen, avisamos (opcional según tu lógica)
+        alert("Por favor, selecciona una imagen para el producto.");
+        return;
+    }
+
+    try {
+        const token = localStorage.getItem("token");
         
-        try {
-            const token = localStorage.getItem("token");
-            const isEditing = editingId !== null;
+        // Decidimos si es POST (crear) o PUT (editar) basándonos en si hay editingId
+        const method = editingId ? "PUT" : "POST";
+        const url = editingId 
+            ? `http://localhost:3000/api/productos/actualizar/${editingId}`
+            : `http://localhost:3000/api/productos/registrar`;
+
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                "Authorization": `Bearer ${token}`
+            },
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            console.log("¡Éxito! Producto guardado:", data);
             
-            // Decidimos la ruta y el método
-            const url = isEditing 
-                ? `http://localhost:3000/api/productos/${editingId}`
-                : "http://localhost:3000/api/productos";
-            const method = isEditing ? "PUT" : "POST";
-
-            // El backend necesita el id_comercio solo al crear, pero enviarlo siempre no suele hacer daño
-            const bodyData = { ...newProduct, id_comercio: storeId };
-
-            const res = await fetch(url, {
-                method: method,
-                headers: { 
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}` 
-                },
-                body: JSON.stringify(bodyData)
-            });
-
-            if (res.ok) {
-                if (isEditing) {
-                    // Si es edición, actualizamos ese producto específico en el array
-                    setProducts(products.map(p => p.id_producto === editingId ? { ...p, ...newProduct } : p));
-                } else {
-                    // Si es nuevo, lo añadimos al final del array
-                    const data = await res.json();
-                    setProducts([...products, { ...newProduct, id_producto: data.id }]);
-                }
-                
-                // Limpiamos y cerramos
-                setNewProduct({ nombre: "", descripcion: "", precio: "", stock: "", imagen: "" });
-                setEditingId(null);
-                setIsModalOpen(false);
+            // 🌟 LA MAGIA DE LA ACTUALIZACIÓN DINÁMICA 🌟
+            if (editingId) {
+                // Si estábamos EDITANDO: Buscamos el producto en el array y lo actualizamos
+                setProducts(products.map(p => p.id_producto === editingId ? {
+                    ...p, 
+                    nombre: newProduct.nombre,
+                    precio: newProduct.precio,
+                    descripcion: newProduct.descripcion,
+                    stock: newProduct.stock,
+                    // Si el backend nos devuelve la nueva URL de la imagen, la usamos. Si no, dejamos la que estaba.
+                    imagen: data.imagen || p.imagen 
+                } : p));
             } else {
-                alert("Hubo un error al guardar.");
+                // Si estábamos CREANDO: Añadimos el nuevo producto al principio de la lista
+                // Usamos el ID y la imagen que nos acaba de devolver Cloudinary/el backend
+                const nuevoProductoFisico = {
+                    id_producto: data.id, 
+                    nombre: newProduct.nombre,
+                    precio: newProduct.precio,
+                    descripcion: newProduct.descripcion,
+                    stock: newProduct.stock,
+                    imagen: data.imagen,
+                    id_comercio: storeId
+                };
+                
+                // Lo ponemos el primero en el array (usamos spread operator [...])
+                setProducts([nuevoProductoFisico, ...products]);
             }
-        } catch (error) {
-            console.error("Error al guardar:", error);
+
+            // 3. Limpiamos y cerramos
+            setNewProduct({ nombre: "", precio: "", descripcion: "", stock: "", imagen: "" });
+            setImageFile(null);
+            setEditingId(null);
+            setIsModalOpen(false);
+
+            // Pequeño feedback visual
+            mostrarNotificacion(`Producto ${editingId ? 'actualizado' : 'añadido'} correctamente, "success"`);
+
+        } else {
+            console.error("Error del backend:", data.error);
+            mostrarNotificacion(data.error, "error");
         }
-    };
+    } catch (error) {
+        console.error("Error de conexión:", error);
+        alert("Error de conexión al guardar el producto.");
+    }
+};
 
     // 💡 6. SEGURIDAD (El "portero" de la página)
     const user = JSON.parse(localStorage.getItem("user") || "{}");
@@ -162,7 +236,7 @@ export const StorePanelPage = () => {
     return (
         <div className="min-h-screen bg-base-200 p-4 md:p-8 relative">
             <div className="max-w-6xl mx-auto">
-                
+
                 <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
                     <div>
                         <h1 className="text-4xl font-black text-base-content">Panel de <span className="text-jungle_teal">Gestión</span></h1>
@@ -231,34 +305,51 @@ export const StorePanelPage = () => {
                             <h3 className="font-black text-2xl mb-6 text-jungle_teal">
                                 {editingId ? "Editar Producto" : "Añadir Nuevo Producto"}
                             </h3>
-                            
+
                             {/* Usamos handleSaveProduct que decide si hacer POST o PUT */}
                             <form onSubmit={handleSaveProduct} className="flex flex-col gap-4">
-                                <input type="text" placeholder="Nombre del producto" required className="input input-bordered w-full" 
-                                    value={newProduct.nombre} onChange={(e) => setNewProduct({...newProduct, nombre: e.target.value })}
+                                <input type="text" placeholder="Nombre del producto" required className="input input-bordered w-full"
+                                    value={newProduct.nombre} onChange={(e) => setNewProduct({ ...newProduct, nombre: e.target.value })}
                                 />
-                                <input type="number" placeholder="Precio" required className="input input-bordered w-full" 
+                                <input type="number" placeholder="Precio" required className="input input-bordered w-full" step="0.01"
                                     value={newProduct.precio} onChange={(e) => setNewProduct({ ...newProduct, precio: Number(e.target.value) })}
                                 />
-                                <input type="text" placeholder="Descripción" required className="input input-bordered w-full" 
+                                <input type="text" placeholder="Descripción" required className="input input-bordered w-full"
                                     value={newProduct.descripcion} onChange={(e) => setNewProduct({ ...newProduct, descripcion: e.target.value })}
                                 />
-                                <input type="number" placeholder="Stock" required className="input input-bordered w-full" 
+                                <input type="number" placeholder="Stock" required className="input input-bordered w-full"
                                     value={newProduct.stock} onChange={(e) => setNewProduct({ ...newProduct, stock: Number(e.target.value) })}
                                 />
-                                <input type="text" placeholder="URL de la imagen" required className="input input-bordered w-full"
-                                    value={newProduct.imagen} onChange={(e) => setNewProduct({ ...newProduct, imagen: e.target.value })}
+
+                                {/* 👇 INPUT TIPO FILE 👇 */}
+                                <input
+                                    type="file"
+                                    accept="image/*" /* Solo permite seleccionar imágenes */
+                                    required
+                                    className="file-input file-input-bordered w-full file-input-success"
+                                    onChange={(e) => setImageFile(e.target.files[0])} /* Guardamos el archivo real, no el texto */
                                 />
-                                
+
                                 <div className="modal-action mt-6">
                                     <button type="button" className="btn" onClick={() => setIsModalOpen(false)}>Cancelar</button>
-                                    <button type="submit" className="btn bg-jungle_teal text-white border-none">Guardar</button>
+                                    <button type="submit" className="btn bg-jungle_teal text-white border-none hover:bg-sea_green">Guardar Producto</button>
                                 </div>
                             </form>
                         </div>
                     </div>
                 )}
             </div>
+            {/* 🍞 COMPONENTE TOAST DE DAISYUI 🍞 */}
+            {toast && (
+                <div className="toast toast-top toast-center z-999 animate-fade-in-down">
+                    <div className={`alert shadow-lg text-white font-bold ${toast.tipo === 'error' ? 'alert-error' : 'bg-jungle_teal border-none'}`}>
+                        {toast.tipo === 'error' ? <span>❌</span> : <span>✅</span>}
+                        <span>{toast.mensaje}</span>
+                    </div>
+                </div>
+            )}
         </div>
+
+        
     );
 };  

@@ -1,17 +1,17 @@
 import pool from "../db/db.js";
 
-async function createComercio(nombre, idUsuario, descripcion, categoria, contacto, direccion , latitud, longitud) {
-    try {   
+async function createComercio(nombre, idUsuario, descripcion, categoria, contacto, direccion, latitud, longitud, imagen) {
+    try {
         const [result] = await pool.query(
-            'INSERT INTO comercio (nombre, id_usuario, descripcion, categoria, contacto, direccion , latitud, longitud) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-            [nombre, idUsuario, descripcion, categoria, contacto, direccion, latitud, longitud]
+            `INSERT INTO comercio (nombre, id_usuario, descripcion, categoria, contacto, direccion, latitud, longitud, imagen) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [nombre, idUsuario, descripcion, categoria, contacto, direccion, latitud, longitud, imagen] 
         );
-        return result.insertId; 
+        return result.insertId;
     } catch (error) {
-        console.error('Error al crear el comercio:', error);
-        throw error; 
+        throw error;
     }
-}
+};
 
 async function getComercioById(idComercio) {
     try {

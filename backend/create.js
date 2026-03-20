@@ -32,6 +32,7 @@ const crearTablas = async () => {
         direccion VARCHAR(250) NOT NULL,
         latitud DECIMAL(10, 8),
         longitud DECIMAL(11, 8),    
+        imagen VARCHAR(250),
         FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario) ON DELETE CASCADE
     )
     `);

@@ -37,7 +37,7 @@ export const Footer = () => {
             </div>
             <p className="opacity-90 font-medium leading-relaxed">
               Conectando el comercio de cercanía con la era digital. 
-              <br/>Tu mercado de confianza, ahora en un clic.
+              <br/>Tu mercado de confianza, ahora en un click.
             </p>
           </aside> 
 
