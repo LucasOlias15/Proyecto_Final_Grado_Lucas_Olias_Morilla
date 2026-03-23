@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { useLocation, Link } from "wouter";
 
 //TODO Añadir funcionalidad de botones y menú de datos personales, cerrar sesión, acceder al panel de gestión (si es dueño), etc.
-//TODO Cambiar emojis por foto de perfil o algo similar 
 
 export const Profile = () => {
   const [user, setUser] = useState(null);

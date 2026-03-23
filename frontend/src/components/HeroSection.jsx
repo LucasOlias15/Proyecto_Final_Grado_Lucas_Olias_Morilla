@@ -10,7 +10,7 @@ export const HeroSection = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     if (query.trim()) {
-      setLocation(`/mapa?search=${encodeURIComponent(query)}`);
+      setLocation(`/explorar?search=${encodeURIComponent(query)}`)
     }
   };
 

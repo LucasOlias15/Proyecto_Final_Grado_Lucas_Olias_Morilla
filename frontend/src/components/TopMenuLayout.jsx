@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Header } from "./Header"; // Asegúrate de importar tu Header
 import { RegisterShopModal } from "./RegisterShopModal";
-import { Banana, Croissant, Beef, Leaf, House, PackageSearch, ShoppingBag, LayoutList, Wrench } from "lucide-react";
+import { Banana, Croissant, Beef, Leaf, House, PackageSearch, ShoppingBag, LayoutList, Wrench, Shirt, Amphora } from "lucide-react";
 
 export const TopMenuLayout = ({ children }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -53,7 +53,7 @@ export const TopMenuLayout = ({ children }) => {
                         <div className="grid grid-cols-2 gap-3 mb-6 relative z-10">
 
                             {/* Categoría 1: Fruterías */}
-                            <a className="flex items-center gap-3 p-3 bg-base-100 rounded-xl hover:shadow-md hover:border-yellow-500 border border-transparent transition-all cursor-pointer group">
+                            <a href="/explorar?categoria=Frutería" className="flex items-center gap-3 p-3 bg-base-100 rounded-xl hover:shadow-md hover:border-yellow-500 border border-transparent transition-all cursor-pointer group">
                                 <div className="bg-yellow-500/10 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 p-2 rounded-lg group-hover:scale-110 transition-transform">
                                     <Banana className="w-6 h-6"/>
                                 </div>
@@ -61,7 +61,7 @@ export const TopMenuLayout = ({ children }) => {
                             </a>
 
                             {/* Categoría 2: Panaderías */}
-                            <a className="flex items-center gap-3 p-3 bg-base-100 rounded-xl hover:shadow-md hover:border-orange-500 border border-transparent transition-all cursor-pointer group">
+                            <a href="/explorar?categoria=Panadería" className="flex items-center gap-3 p-3 bg-base-100 rounded-xl hover:shadow-md hover:border-orange-500 border border-transparent transition-all cursor-pointer group">
                                 <div className="bg-orange-500/10 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 p-2 rounded-lg group-hover:scale-110 transition-transform">
                                     <Croissant className="w-6 h-6"/>
                                 </div>
@@ -69,7 +69,7 @@ export const TopMenuLayout = ({ children }) => {
                             </a>
 
                             {/* Categoría 3: Carnicerías */}
-                            <a className="flex items-center gap-3 p-3 bg-base-100 rounded-xl hover:shadow-md hover:border-red-500 border border-transparent transition-all cursor-pointer group">
+                            <a href="/explorar?categoria=Carnicería" className="flex items-center gap-3 p-3 bg-base-100 rounded-xl hover:shadow-md hover:border-red-500 border border-transparent transition-all cursor-pointer group">
                                 <div className="bg-red-500/10 dark:bg-red-900/30 text-red-700 dark:text-red-400 p-2 rounded-lg group-hover:scale-110 transition-transform">
                                     <Beef className="w-6 h-6"/>
                                 </div>
@@ -77,17 +77,32 @@ export const TopMenuLayout = ({ children }) => {
                             </a>
 
                             {/* Categoría 4: Bio/Eco */}
-                            <a className="flex items-center gap-3 p-3 bg-base-100 rounded-xl hover:shadow-md hover:border-sea_green border border-transparent transition-all cursor-pointer group">
-                                {/* Aquí usé tu color corporativo 'jungle_teal' para que haga juego con el diseño general */}
-                                <div className="bg-jungle_teal/10 dark:bg-jungle_teal/30 text-jungle_teal dark:text-jungle_teal-400 p-2 rounded-lg group-hover:scale-110 transition-transform">
+                            <a href="/explorar?categoria=Bio" className="flex items-center gap-3 p-3 bg-base-100 rounded-xl hover:shadow-md hover:border-sea_green border border-transparent transition-all cursor-pointer group">
+                                <div className="bg-jungle_teal/10 dark:bg-jungle_teal/30 text-jungle_teal dark:text-jungle_teal p-2 rounded-lg group-hover:scale-110 transition-transform">
                                     <Leaf className="w-6 h-6"/>
                                 </div>
                                 <span className="font-medium text-base-content">Productos Bio</span>
                             </a>
 
+                           {/* Categoría 5: Artesanía/Regalos */}
+                            <a href="/explorar?categoria=Artesanía y regalos" className="flex items-center gap-3 p-3 bg-base-100 rounded-xl hover:shadow-md hover:border-blue-500 border border-transparent transition-all cursor-pointer group">
+                                <div className="bg-blue-500/10 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 p-2 rounded-lg group-hover:scale-110 transition-transform">
+                                    <Amphora className="w-6 h-6"/>
+                                </div>
+                                <span className="font-medium text-base-content">Artesanía y Regalos</span>
+                            </a>
+
+                            {/* Categoría 6: Textiles/Moda */}
+                            <a href="/explorar?categoria=Textiles y moda" className="flex items-center gap-3 p-3 bg-base-100 rounded-xl hover:shadow-md hover:border-purple-500 border border-transparent transition-all cursor-pointer group">
+                                <div className="bg-purple-500/10 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 p-2 rounded-lg group-hover:scale-110 transition-transform">
+                                    <Shirt className="w-6 h-6"/>
+                                </div>
+                                <span className="font-medium text-base-content">Textiles y moda</span>
+                            </a>
+
                         </div>
 
-                        {/* Banner promocional pequeñito */}
+                        {/* Banner promocional*/}
                         <div className="mt-auto bg-linear-to-r from-jungle_teal to-sea_green p-4 rounded-xl text-white flex items-center justify-between relative z-10 shadow-lg">
                             <div>
                                 <h4 className="font-black text-sm md:text-base">¿Tienes un negocio local?</h4>
@@ -110,7 +125,7 @@ export const TopMenuLayout = ({ children }) => {
             )}
 
             {/* 4. EL CONTENIDO DE LA PÁGINA */}
-            <main className="flex-1 "> {/* pt-[80px] compensa la altura del Header fijo */}
+            <main className="flex-1 "> 
                 {children}
             </main>
 
