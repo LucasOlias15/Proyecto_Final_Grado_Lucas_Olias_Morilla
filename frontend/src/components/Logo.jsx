@@ -8,7 +8,7 @@ export const Logo = () => {
       className="flex items-center gap-2 cursor-pointer"
       whileHover="hover" 
     >
-      {/* Icono con sus animaciones (Mantenemos el salto y el brillo) */}
+      {/* Icono con sus animaciones */}
       <motion.svg 
         viewBox="0 0 100 120" 
         className="w-10 h-12"
@@ -57,7 +57,7 @@ export const Logo = () => {
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.6 }}
           variants={{
-            hover: { y: 2, transition: { type: "spring", stiffness: 400, damping: 10 } } // Local baja
+            hover: { y: 2, transition: { type: "spring", stiffness: 400, damping: 10 } }
           }}
         >
           Local
@@ -68,7 +68,7 @@ export const Logo = () => {
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.8 }}
           variants={{
-            hover: { y: -2, transition: { type: "spring", stiffness: 400, damping: 10 } } // Markt sube
+            hover: { y: -2, transition: { type: "spring", stiffness: 400, damping: 10 } }
           }}
         >
           Markt

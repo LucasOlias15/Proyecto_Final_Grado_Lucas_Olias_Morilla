@@ -1,38 +1,43 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import { Link, useSearch } from "wouter";
-import { PanelTopOpen, Search, ShoppingBasket, Store, Heart, SquareCheckBig } from "lucide-react";
+import { PanelTopOpen, Search, ShoppingBasket, Store, Heart, SquareCheckBig, Trash, AlertCircle } from "lucide-react";
 
 export const ExplorePage = () => {
-    // 1. Estados de Datos
+     
+    // 1. ESTADOS
+     
+    
+    // --- Datos ---
     const [shops, setShops] = useState([]);
     const [products, setProducts] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // 2. Estados de Filtros 
+    // --- Filtros y Vistas ---
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("Todas");
     const [viewMode, setViewMode] = useState("tiendas");
 
-    // 3. Estado Toast 
+    // --- UI y Usuario ---
     const [toast, setToast] = useState(null);
-
-    // 4. Estado Favoritos
     const [favoritos, setFavoritos] = useState([]);
 
     const categorias = ["Todas", "Frutería", "Panadería", "Carnicería", "Bio", "Textiles y moda", "Artesanía y regalos"];
     const usuario = JSON.parse(localStorage.getItem('user'));
 
-    // 👇 CAMBIO 1: Wouter lee la URL dinámicamente 👇
+    // --- Enrutamiento (Wouter) ---
     const searchString = useSearch(); 
 
+     
+    // 2. EFECTOS (Carga de datos y lectura de URL)
+     
     useEffect(() => {
-        // 👇 CAMBIO 2: Usamos searchString (de Wouter) en lugar de window.location.search 👇
+        // Leemos los parámetros dinámicos de la URL usando searchString de Wouter
         const parametros = new URLSearchParams(searchString);
         const palabraBuscada = parametros.get("search");
         const categoriaBuscada = parametros.get("categoria");
 
+        // Ajustamos los filtros según lo que venga en la URL
         if (palabraBuscada) {
             setSearchQuery(palabraBuscada);
             setViewMode("todos");
@@ -40,11 +45,10 @@ export const ExplorePage = () => {
             setSelectedCategory(categoriaBuscada);
             setViewMode("todos");
         } else {
-            // Esto es importante: si la URL no tiene categoría, reseteamos a "Todas"
-            // (Útil por si el usuario borra la categoría de la URL a mano)
             setSelectedCategory("Todas");
         }
 
+        // Función para traer todos los datos en paralelo (Comercios, Productos y Favoritos)
         const fetchData = async () => {
             try {
                 setIsLoading(true);
@@ -59,11 +63,12 @@ export const ExplorePage = () => {
                 setShops(dataShops);
                 setProducts(dataProducts);
 
+                // Si hay un usuario logueado, traemos sus favoritos para marcar los corazones
                 if (usuario) {
                     const resFavs = await fetch(`http://localhost:3000/api/favoritos/${usuario.id}`);
                     if (resFavs.ok) {
                         const dataFavs = await resFavs.json();
-
+                        // Extraemos solo los IDs de los productos favoritos
                         const idsFavoritos = dataFavs
                             .filter(fav => fav.id_producto !== null)
                             .map(fav => fav.id_producto);
@@ -72,23 +77,67 @@ export const ExplorePage = () => {
                     }
                 }
             } catch (err) {
-                console.error("❌ Error:", err);
+                console.error("❌ Error conectando con el backend:", err);
                 setError("Error al conectar con el mercado.");
             } finally {
                 setIsLoading(false);
             }
         };
+
         fetchData();
         
-    // 👇 CAMBIO 3: Añadimos searchString a las dependencias 👇
+    // Se ejecuta al montar el componente y cada vez que cambia la URL
     }, [searchString]); 
 
+     
+    // 3. FUNCIONES AUXILIARES Y LÓGICA DE NEGOCIO
+     
+
+    // Control del Toast (Notificaciones)
     const mostrarNotificacion = (mensaje, tipo) => {
         setToast({ mensaje, tipo });
         setTimeout(() => setToast(null), 3000);
     };
 
-    // --- LÓGICA DE FILTRADO ---
+    // Función para añadir/quitar favoritos
+    const handleToggleFavorito = async (e, id_producto) => {
+        e.preventDefault();
+
+        if (usuario) {
+            try {
+                const res = await fetch(`http://localhost:3000/api/favoritos/toggleFavs`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        id_usuario: usuario.id,
+                        id_producto: id_producto
+                    })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    // Diferenciación en toast para mostrar añadido o eliminado
+                    if (data.isFavorite) {
+                        mostrarNotificacion(data.message || "Añadido a favoritos", "success");
+                        setFavoritos(prev => [...prev, id_producto]);
+                    } else {
+                        mostrarNotificacion(data.message || "Eliminado de favoritos", "removed");
+                        setFavoritos(prev => prev.filter(id => id !== id_producto));
+                    }
+                }
+            } catch (error) {
+                mostrarNotificacion("Error de conexión al guardar favorito.", "error");
+            }
+        } else {
+            mostrarNotificacion("Inicia sesión para guardar favoritos.", "error");
+        }
+    };
+
+    // Aplicar filtros a los arrays de datos
     const filteredShops = shops.filter((shop) => {
         const matchCategoria = selectedCategory === "Todas" || shop.categoria === selectedCategory;
         const matchBusqueda = shop.nombre.toLowerCase().includes(searchQuery.toLowerCase());
@@ -101,51 +150,22 @@ export const ExplorePage = () => {
         return matchCategoria && matchBusqueda;
     });
 
+    const sinResultados = filteredShops.length === 0 && filteredProducts.length === 0;
+
+    // Pantalla de carga inicial
     if (isLoading) return (
         <div className="flex justify-center items-center min-h-[60vh]">
             <span className="loading loading-dots loading-lg text-jungle_teal"></span>
         </div>
     );
 
-    const sinResultados = filteredShops.length === 0 && filteredProducts.length === 0;
-
-    // --- FUNCIÓN PARA GESTIONAR LOS FAVORITOS ---
-    const handleToggleFavorito = async (e, id_producto) => {
-        e.preventDefault();
-
-        if (usuario) {
-            const res = await fetch(`http://localhost:3000/api/favoritos/toggleFavs`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({
-                    id_usuario: usuario.id,
-                    id_producto: id_producto
-                })
-            });
-
-            const data = await res.json();
-
-            if (res.ok) {
-                mostrarNotificacion(data.message, "success");
-                if (data.isFavorite) {
-                    setFavoritos(prev => [...prev, id_producto]);
-                } else {
-                    setFavoritos(prev => prev.filter(id => id !== id_producto));
-                }
-            }
-
-        } else {
-            mostrarNotificacion("No se puede añadir el producto a favorito sin haber iniciado sesión.", "error");
-        }
-    };
-
-    // ... (El return se queda exactamente igual, no tienes que cambiar nada del HTML)
-     return (
+     
+    // 4. RENDERIZADO (HTML/JSX)
+     
+    return (
         <div className="flex flex-col md:flex-row gap-8 max-w-7xl mx-auto px-4 py-8 w-full">
-            {/* BARRA LATERAL */}
+            
+            {/* --- BARRA LATERAL (Categorías) --- */}
             <aside className="w-full md:w-64 shrink-0">
                 <h2 className="font-bold text-xl mb-4 text-base-content">Categorías</h2>
                 <div className="flex flex-col gap-2">
@@ -162,10 +182,13 @@ export const ExplorePage = () => {
                 </div>
             </aside>
 
+            {/* --- ÁREA PRINCIPAL --- */}
             <main className="flex-1">
                 <header className="mb-10">
-                    {/* BUSCADOR */}
+                    
+                    {/* Buscador de texto */}
                     <div className="relative group w-full mb-8">
+                        {/* Corregido bg-linear-to-r a bg-gradient-to-r (Estándar de Tailwind) */}
                         <div className="absolute -inset-0.5 bg-linear-to-r from-jungle_teal to-sea_green rounded-full blur opacity-0 group-hover:opacity-20 transition duration-500"></div>
                         <div className="relative flex items-center bg-base-100 rounded-full shadow-sm border border-base-300 overflow-hidden">
                             <div className="pl-5 text-base-content/40"><Search size={20} /></div>
@@ -179,7 +202,7 @@ export const ExplorePage = () => {
                         </div>
                     </div>
 
-                    {/* TABS */}
+                    {/* Pestañas de Navegación (Tabs) */}
                     <div className="flex gap-6 border-b border-base-200">
                         <button onClick={() => setViewMode("tiendas")} className={`pb-3 px-2 font-bold border-b-2 flex items-center gap-2 ${viewMode === "tiendas" ? "border-jungle_teal text-jungle_teal" : "border-transparent opacity-50"}`}>
                             <Store size={18} /> Tiendas
@@ -193,14 +216,16 @@ export const ExplorePage = () => {
                     </div>
                 </header>
 
+                {/* --- GRID DE RESULTADOS --- */}
                 <section>
                     {!sinResultados && (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {/* Render COMERCIOS (Si el modo de vista lo permite) */}
+                            
+                            {/* Render COMERCIOS */}
                             {(viewMode === "tiendas" || viewMode === "todos") && filteredShops.map((shop) => (
                                 <Link key={`shop-${shop.id_comercio}`} href={`/tienda/${shop.id_comercio}`}>
                                     <div className="card bg-base-100 shadow-sm border border-base-200 hover:shadow-md transition-all rounded-3xl cursor-pointer">
-                                        <figure className="h-50 bg-base-200 overflow-hidden rounded-t-3xl">
+                                        <figure className="h-48 bg-base-200 overflow-hidden rounded-t-3xl"> {/* h-50 corregido a h-48 */}
                                             <img className="w-full h-full object-cover" src={shop.imagen} alt={shop.nombre} />
                                         </figure>
                                         <div className="card-body p-4">
@@ -212,23 +237,22 @@ export const ExplorePage = () => {
                                 </Link>
                             ))}
 
-                            {/* Render PRODUCTOS (Si el modo de vista lo permite) */}
+                            {/* Render PRODUCTOS */}
                             {(viewMode === "productos" || viewMode === "todos") && filteredProducts.map((product) => (
                                 <div key={`prod-${product.id_producto}`} className="card bg-base-100 shadow-sm border border-base-200 hover:shadow-md transition-all rounded-3xl">
-
-                                    {/* 👇 CAMBIO: Añadimos 'relative' al figure 👇 */}
-                                    <figure className="h-32 bg-base-200 overflow-hidden rounded-t-3xl relative">
+                                    <figure className="h-48 bg-base-200 overflow-hidden rounded-t-3xl relative">
                                         <img src={product.imagen} alt={product.nombre} className="w-full h-full object-cover" />
 
+                                        {/* Botón Corazón Favoritos */}
                                         <button
                                             onClick={(e) => handleToggleFavorito(e, product.id_producto)}
-                                            className={`absolute top-2 right-2 p-1.5 backdrop-blur-sm rounded-full transition-all shadow-sm z-10 ${favoritos.includes(product.id_producto)
+                                            className={`absolute top-2 right-2 p-2 backdrop-blur-sm rounded-full transition-all shadow-md z-10 ${favoritos.includes(product.id_producto)
                                                 ? "text-red-500 bg-white"
-                                                : "text-base-content/50 bg-base-100/80"
+                                                : "text-base-content/50 bg-base-100/80 hover:text-red-400"
                                                 }`}
                                         >
                                             <Heart
-                                                size={18}
+                                                size={20}
                                                 fill={favoritos.includes(product.id_producto) ? "currentColor" : "none"}
                                             />
                                         </button>
@@ -242,11 +266,11 @@ export const ExplorePage = () => {
                                             </p>
                                         </div>
 
-                                        <p className="text-xs italic">{product.descripcion}</p>
+                                        <p className="text-xs italic line-clamp-2">{product.descripcion}</p> {/* line-clamp para que no rompa el diseño si es muy larga */}
                                         <div className="flex justify-between items-center mt-2">
-                                            <span className="font-bold text-jungle_teal">{product.precio}€</span>
-                                            {/* TODO Funcionalidad boton de añadir productos */}
-                                            <button className="btn btn-xs bg-jungle_teal text-white border-none rounded-full px-4 hover:bg-jungle_teal/90">Añadir</button>
+                                            <span className="font-bold text-jungle_teal text-lg">{product.precio}€</span>
+                                            {/* TODO: Funcionalidad boton de añadir productos al carrito */}
+                                            <button className="btn btn-sm bg-jungle_teal text-white border-none rounded-full px-6 hover:bg-jungle_teal/90">Añadir</button>
                                         </div>
                                     </div>
                                 </div>
@@ -254,11 +278,10 @@ export const ExplorePage = () => {
                         </div>
                     )}
 
-                    {/* 👻 SI NO HAY RESULTADOS, MOSTRAMOS EL MENSAJE 'ESTADO VACÍO' 👻 */}
+                    {/* --- ESTADO VACÍO (Sin Resultados) --- */}
                     {sinResultados && (
                         <div className="flex flex-col items-center justify-center text-center p-10 bg-base-100 rounded-4xl border border-base-300 shadow-sm min-h-[50vh]">
                             <div className="w-48 h-48 mb-6 text-jungle_teal">
-                                {/* Un icono SVG o una ilustración limpia */}
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                                     <circle cx="11" cy="11" r="8" />
                                     <line x1="21" y1="21" x2="16.65" y2="16.65" />
@@ -270,7 +293,6 @@ export const ExplorePage = () => {
                             <p className="text-base-content/70 max-w-md mb-8">
                                 No hemos encontrado ninguna tienda ni producto que coincida con tu búsqueda de "{searchQuery || selectedCategory}". Prueba a cambiar la categoría o busca otra cosa.
                             </p>
-                            {/* Un botón útil para limpiar la búsqueda rápidamente */}
                             <button
                                 onClick={() => {
                                     setSearchQuery("");
@@ -285,10 +307,22 @@ export const ExplorePage = () => {
                     )}
                 </section>
             </main>
+
+            {/* 
+                5. TOAST NOTIFICATIONS (Dinámicas según la acción)
+                 */}
             {toast && (
                 <div className="toast toast-top toast-center z-999 animate-fade-in-down">
-                    <div className={`alert shadow-lg text-white font-bold ${toast.tipo === 'error' ? 'alert-error' : 'bg-linear-to-r from-sea_green-500 to-sea_green-400   border-none'}`}>
-                        {toast.tipo === 'error' ? <span><SquareCheckBig /></span> : <span><SquareCheckBig /></span>}
+                    <div className={`alert shadow-lg text-white font-bold border-none flex items-center gap-3
+                        ${toast.tipo === 'error' ? 'bg-red-500' : 
+                          toast.tipo === 'removed' ? 'bg-orange-500' : 
+                          'bg-linear-to-r from-jungle_teal to-sea_green'}`}
+                    >
+                        {/* Lógica de Iconos Condicionales */}
+                        {toast.tipo === 'error' && <AlertCircle size={22} />}
+                        {toast.tipo === 'removed' && <Trash size={22} />}
+                        {toast.tipo === 'success' && <SquareCheckBig size={22} />}
+                        
                         <span>{toast.mensaje}</span>
                     </div>
                 </div>

@@ -391,7 +391,7 @@ export const MapPage = () => {
     
     <div className="text-center mb-12">
         <h2 className="text-3xl md:text-5xl font-black  pb-2 inline-block">
-            Explora tu <strong className="text-transparent bg-clip-text bg-gradient-to-r from-bright_fern to-jungle_teal">barrio</strong>
+            Explora tu <strong className="text-transparent bg-clip-text bg-linear-to-r from-bright_fern to-jungle_teal">barrio</strong>
         </h2>
         <p className="text-base-content/70 mt-4 max-w-2xl mx-auto text-lg font-medium">
           Recorre nuestras calles digitales para encontrar los mejores productos de proximidad. Todo lo que necesitas está mucho más cerca de lo que imaginas.        
