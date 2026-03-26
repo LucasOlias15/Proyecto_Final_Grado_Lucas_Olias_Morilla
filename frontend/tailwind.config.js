@@ -17,6 +17,12 @@ export default {
       }
     },
   },
+  //HOVER (NI CON ESTAS LINEAS SE ARREGLA)
+  /*
+  future: {
+    hoverOnlyWhenSupported: false,
+  },
+  */
   plugins: [require("daisyui")],
   daisyui: {
     themes: [

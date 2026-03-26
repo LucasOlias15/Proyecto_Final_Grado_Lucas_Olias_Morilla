@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Link } from "wouter";
+import { Link, useSearch } from "wouter";
 import { PanelTopOpen, Search, ShoppingBasket, Store, Heart, SquareCheckBig } from "lucide-react";
-
 
 export const ExplorePage = () => {
     // 1. Estados de Datos
@@ -25,11 +24,12 @@ export const ExplorePage = () => {
     const categorias = ["Todas", "Frutería", "Panadería", "Carnicería", "Bio", "Textiles y moda", "Artesanía y regalos"];
     const usuario = JSON.parse(localStorage.getItem('user'));
 
-    useEffect(() => {
+    // 👇 CAMBIO 1: Wouter lee la URL dinámicamente 👇
+    const searchString = useSearch(); 
 
-        // Se guardan los parametros de la búsqueda que vienen en window.location.search junto a la 
-        // palabra que viene de search=${encodeURIComponent(query)}
-        const parametros = new URLSearchParams(window.location.search);
+    useEffect(() => {
+        // 👇 CAMBIO 2: Usamos searchString (de Wouter) en lugar de window.location.search 👇
+        const parametros = new URLSearchParams(searchString);
         const palabraBuscada = parametros.get("search");
         const categoriaBuscada = parametros.get("categoria");
 
@@ -39,7 +39,10 @@ export const ExplorePage = () => {
         } else if (categoriaBuscada) {
             setSelectedCategory(categoriaBuscada);
             setViewMode("todos");
-
+        } else {
+            // Esto es importante: si la URL no tiene categoría, reseteamos a "Todas"
+            // (Útil por si el usuario borra la categoría de la URL a mano)
+            setSelectedCategory("Todas");
         }
 
         const fetchData = async () => {
@@ -61,13 +64,10 @@ export const ExplorePage = () => {
                     if (resFavs.ok) {
                         const dataFavs = await resFavs.json();
 
-                        // Transformamos los objetos de la BD en un array de números limpios
-                        // Filtrando además los que sean null (por si ha guardado una tienda en vez de un producto)
                         const idsFavoritos = dataFavs
                             .filter(fav => fav.id_producto !== null)
                             .map(fav => fav.id_producto);
 
-                        // Guardamos los IDs en nuestro estado para que React pinte los corazones
                         setFavoritos(idsFavoritos);
                     }
                 }
@@ -79,12 +79,13 @@ export const ExplorePage = () => {
             }
         };
         fetchData();
-    }, []);
+        
+    // 👇 CAMBIO 3: Añadimos searchString a las dependencias 👇
+    }, [searchString]); 
 
-    // Añade esto debajo de tus useState
     const mostrarNotificacion = (mensaje, tipo) => {
         setToast({ mensaje, tipo });
-        setTimeout(() => setToast(null), 3000); // Se oculta a los 3 segundos
+        setTimeout(() => setToast(null), 3000);
     };
 
     // --- LÓGICA DE FILTRADO ---
@@ -111,7 +112,6 @@ export const ExplorePage = () => {
     // --- FUNCIÓN PARA GESTIONAR LOS FAVORITOS ---
     const handleToggleFavorito = async (e, id_producto) => {
         e.preventDefault();
-
 
         if (usuario) {
             const res = await fetch(`http://localhost:3000/api/favoritos/toggleFavs`, {
@@ -142,7 +142,8 @@ export const ExplorePage = () => {
         }
     };
 
-    return (
+    // ... (El return se queda exactamente igual, no tienes que cambiar nada del HTML)
+     return (
         <div className="flex flex-col md:flex-row gap-8 max-w-7xl mx-auto px-4 py-8 w-full">
             {/* BARRA LATERAL */}
             <aside className="w-full md:w-64 shrink-0">

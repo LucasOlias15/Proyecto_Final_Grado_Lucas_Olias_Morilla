@@ -1,15 +1,6 @@
 import { useState, useEffect } from "react";
 import { useRoute, Link } from "wouter";
 
-// TODO: CLOUDINARY - Cambiar el envío de datos a FormData.
-// Como ahora enviamos una imagen (archivo físico) al backend, 
-// NO podemos usar JSON.stringify(). Tenemos que crear un objeto FormData:
-// const formData = new FormData();
-// formData.append("nombre", nombre);
-// formData.append("precio", precio);
-// formData.append("imagen", archivoImagen);
-// Y en el fetch, quitar el 'Content-Type': 'application/json' de los headers.
-
 export const StorePanelPage = () => {
     // 💡 1. RUTAS Y ESTADOS (La "memoria" de la página)
     const [, params] = useRoute("/panel-tienda/:id");
@@ -249,7 +240,6 @@ export const StorePanelPage = () => {
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div className="bg-base-100 p-6 rounded-4xl shadow-xl border border-base-300 h-fit">
-                        {/* TODO Cambiar imagen generica por imagen de ese comercio */}
                         <img src={store?.imagen} className="w-full h-40 object-cover rounded-2xl mb-4" alt="Tienda" />
                         <h2 className="text-xl font-bold mb-2">{store?.nombre}</h2>
                         <span className="badge badge-outline border-jungle_teal text-jungle_teal font-bold mb-4">{store?.categoria}</span>

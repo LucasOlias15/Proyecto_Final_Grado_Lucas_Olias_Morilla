@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { RegisterShopModal } from './RegisterShopModal';
+import { BookOpenText, ChartColumnIncreasing, LucideHandshake, Package, Rocket } from 'lucide-react';
 
 export const MerchantBanner = () => {
   return (
@@ -57,15 +58,15 @@ export const MerchantBanner = () => {
                 <div className="collapse-content space-y-4 opacity-90">
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-current border-opacity-20">
                     <div>
-                      <h4 className="font-bold mb-1 opacity-100">🚀 Alcance Total</h4>
+                      <h4 className="font-bold mb-1 opacity-100"><BookOpenText/> Alcance Total</h4>
                       <p className="text-sm">Tu tienda visible para miles de vecinos en un radio de 20km.</p>
                     </div>
                     <div>
-                      <h4 className="font-bold mb-1 opacity-100">📦 Gestión Fácil</h4>
+                      <h4 className="font-bold mb-1 opacity-100"><Package/> Gestión Fácil</h4>
                       <p className="text-sm">Panel de control intuitivo para subir stock y gestionar pedidos.</p>
                     </div>
                     <div>
-                      <h4 className="font-bold mb-1 opacity-100">🤝 Comunidad</h4>
+                      <h4 className="font-bold mb-1 opacity-100"><LucideHandshake/> Comunidad</h4>
                       <p className="text-sm">Apoyo mutuo entre comerciantes y logística compartida.</p>
                     </div>
                   </div>
@@ -86,7 +87,7 @@ export const MerchantBanner = () => {
                    <div className="h-4 w-32 rounded-full mb-6 bg-base-300"></div>
                    <div className="space-y-4">
                      <div className="h-32 w-full rounded-xl flex items-center justify-center text-4xl bg-base-200">
-                       📊
+                       <ChartColumnIncreasing className='h-10 w-10'/>
                      </div>
                      <div className="h-4 w-full rounded-full bg-base-200"></div>
                      <div className="h-4 w-2/3 rounded-full bg-base-200"></div>
@@ -95,9 +96,9 @@ export const MerchantBanner = () => {
                 <motion.div 
                   animate={{ y: [0, -15, 0] }}
                   transition={{ repeat: Infinity, duration: 4 }}
-                  className="absolute -top-6 -right-6 text-6xl drop-shadow-2xl"
+                  className="absolute -top-2 -right-4 text-6xl drop-shadow-2xl"
                 >
-                  🚀
+                  <Rocket className='h-10 w-10'/>
                 </motion.div>
               </motion.div>
             </div>

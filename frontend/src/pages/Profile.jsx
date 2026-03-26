@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useLocation, Link } from "wouter";
 import { UserRoundCog } from "lucide-react";
 
-//TODO Añadir funcionalidad de botones y menú de datos personales, cerrar sesión, acceder al panel de gestión (si es dueño), etc.
+//TODO Añadir funcionalidad Crear cuenta , ruta /registro
 
 export const Profile = () => {
   const [user, setUser] = useState(null);
@@ -225,11 +225,7 @@ const response = await fetch(`http://localhost:3000/api/users/perfil`, {
           )}
 
           {/* Bloque Común: Ajustes de cuenta */}
-          <div className={`md:col-span-3 rounded-[2.5rem] p-8 transition-all duration-300 shadow-sm border ${
-            showSettings 
-              ? 'bg-base-100 border-yellow-400/30 shadow-md' 
-              : 'bg-base-200 border-base-300 hover:border-base-content/20'
-          }`}>
+          <div className={`md:col-span-3 rounded-[2.5rem] p-8 transition-all duration-300 shadow-sm border bg-base-200 border-base-300 hover:border-base-content/20`}>
             
             <div 
               onClick={() => setShowSettings(!showSettings)}
@@ -265,7 +261,7 @@ const response = await fetch(`http://localhost:3000/api/users/perfil`, {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                   
-                  {/* Campo: Nombre */}
+               {/* Campo: Nombre */}
                   <div className="flex flex-col gap-2">
                     <label className="text-xs font-bold uppercase tracking-widest text-base-content/70 ml-2">
                       Nombre completo
@@ -275,7 +271,7 @@ const response = await fetch(`http://localhost:3000/api/users/perfil`, {
                       name="nombre"
                       value={formData.nombre}
                       onChange={handleInputChange}
-                      className="p-4 rounded-2xl bg-base-200/50 border border-base-300 text-base-content placeholder:text-base-content/30 outline-none focus:bg-base-100 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-400/20 transition-all font-medium"
+                      className="w-full p-4 rounded-2xl bg-base-300/40 border-2 border-transparent text-base-content placeholder:text-base-content/40 outline-none focus:bg-base-100 focus:border-jungle_teal focus:ring-4 focus:ring-jungle_teal/10 transition-all font-medium shadow-inner"
                       placeholder="Tu nombre"
                     />
                   </div>
@@ -290,7 +286,7 @@ const response = await fetch(`http://localhost:3000/api/users/perfil`, {
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      className="p-4 rounded-2xl bg-base-200/50 border border-base-300 text-base-content placeholder:text-base-content/30 outline-none focus:bg-base-100 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-400/20 transition-all font-medium"
+                      className="w-full p-4 rounded-2xl bg-base-300/40 border-2 border-transparent text-base-content placeholder:text-base-content/40 outline-none focus:bg-base-100 focus:border-jungle_teal focus:ring-4 focus:ring-jungle_teal/10 transition-all font-medium shadow-inner"
                       placeholder="tu@email.com"
                     />
                   </div>
@@ -306,7 +302,8 @@ const response = await fetch(`http://localhost:3000/api/users/perfil`, {
                       value={formData.claveActual}
                       onChange={handleInputChange}
                       required
-                      className="p-4 rounded-2xl bg-base-200/50 border border-base-300 text-base-content placeholder:text-base-content/30 outline-none focus:bg-base-100 focus:border-error focus:ring-4 focus:ring-error/20 transition-all font-medium"
+                      // NOTA: Para este campo crítico, en el focus he puesto border-error para que resalte
+                      className="w-full p-4 rounded-2xl bg-base-300/40 border-2 border-transparent text-base-content placeholder:text-base-content/40 outline-none focus:bg-base-100 focus:border-error focus:ring-4 focus:ring-error/10 transition-all font-medium shadow-inner"
                       placeholder="Obligatoria para guardar"
                     />
                   </div>
@@ -322,11 +319,10 @@ const response = await fetch(`http://localhost:3000/api/users/perfil`, {
                       name="nuevaClave"
                       value={formData.nuevaClave}
                       onChange={handleInputChange}
-                      className="p-4 rounded-2xl bg-base-200/50 border border-base-300 text-base-content placeholder:text-base-content/30 outline-none focus:bg-base-100 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-400/20 transition-all font-medium"
+                      className="w-full p-4 rounded-2xl bg-base-300/40 border-2 border-transparent text-base-content placeholder:text-base-content/40 outline-none focus:bg-base-100 focus:border-jungle_teal focus:ring-4 focus:ring-jungle_teal/10 transition-all font-medium shadow-inner"
                       placeholder="Dejar en blanco si no cambia"
                     />
                   </div>
-
                 </div>
 
                 <div className="flex items-center justify-end gap-3 mt-4">
