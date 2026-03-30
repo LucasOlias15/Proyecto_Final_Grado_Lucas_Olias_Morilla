@@ -206,9 +206,11 @@ const response = await fetch(`http://localhost:3000/api/users/perfil`, {
         <p className="text-base-content/60">Revisa el estado de tus compras recientes y descarga tus recibos.</p>
     </div>
     <div className="mt-8 flex justify-end">
-        <span className="text-sm font-bold text-jungle_teal uppercase tracking-widest bg-jungle_teal/10 px-4 py-2 rounded-xl group-hover:bg-jungle_teal group-hover:text-white transition-colors">
+      <Link href="/perfil/pedidos">
+      <span className="text-sm font-bold text-jungle_teal uppercase tracking-widest bg-jungle_teal/10 px-4 py-2 rounded-xl group-hover:bg-jungle_teal group-hover:text-white transition-colors">
             Ver pedidos -&gt;
         </span>
+        </Link>
     </div>
 </div>
 

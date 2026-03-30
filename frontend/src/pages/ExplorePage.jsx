@@ -171,7 +171,7 @@ export const ExplorePage = () => {
             {/* 👇 EFECTO AURORA BOREAL INFINITA (100% Tailwind) 👇 */}
             <motion.div 
                 // Fijado (fixed) en lugar de absolute para que siempre cubra la pantalla entera aunque hagas scroll
-                className="fixed inset-0 w-[200vw] h-[150vh] -top-[25%] -left-[50%] pointer-events-none -z-10 blur-[100px] opacity-60 dark:opacity-40 bg-[linear-gradient(110deg,transparent_0%,rgba(0,163,136,0.3)_25%,rgba(234,179,8,0.2)_50%,rgba(0,163,136,0.3)_75%,transparent_100%)] bg-[length:200%_100%]"
+                className="fixed inset-0 w-[200vw] h-[150vh] -top-[25%] -left-[50%] pointer-events-none -z-10 blur-[100px] opacity-60 dark:opacity-40 bg-[linear-gradient(110deg,transparent_0%,rgba(0,163,136,0.3)_25%,rgba(234,179,8,0.2)_50%,rgba(0,163,136,0.3)_75%,transparent_100%)] bg-size-[200%_100%]"
                 animate={{
                     backgroundPosition: ["200% 0%", "0% 0%"],
                 }}
@@ -208,7 +208,7 @@ export const ExplorePage = () => {
                         
                         {/* Buscador de texto */}
                         <div className="relative group w-full mb-8">
-                            <div className="absolute -inset-0.5 bg-gradient-to-r from-jungle_teal to-sea_green rounded-full blur opacity-0 group-hover:opacity-20 transition duration-500"></div>
+                            <div className="absolute -inset-0.5 bg-linear-to-r from-jungle_teal to-sea_green rounded-full blur opacity-0 group-hover:opacity-20 transition duration-500"></div>
                             {/* Le he añadido /80 y backdrop-blur para que el input sea medio transparente sobre la aurora */}
                             <div className="relative flex items-center bg-base-100/80 backdrop-blur-md rounded-full shadow-sm border border-base-300 overflow-hidden">
                                 <div className="pl-5 text-base-content/40"><Search size={20} /></div>

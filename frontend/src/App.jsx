@@ -8,6 +8,7 @@ import { LoginPage } from './pages/LoginPage';
 import { StorePanelPage } from './pages/StorePanelPage'; 
 import { Profile } from './pages/Profile';
 import { ExplorePage } from './pages/ExplorePage';
+import { OrdersPage } from './pages/OrdersPage';
 
 function App() {
   return (
@@ -36,6 +37,9 @@ function App() {
 
         {/* 7. Ruta para mostrar productos y tiendas completos ,  con filtros y búsqueda*/}
         <Route path="/explorar" component={ExplorePage}/>
+
+        {/* 8. Ruta de gestíon de los pedidos realizados por el usuario*/}
+        <Route path="/perfil/pedidos" component={OrdersPage}/>
 
         {/* Ruta 404: Captura errores de URL */}
           <Route>

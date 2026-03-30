@@ -19,7 +19,7 @@ export const HeroSection = () => {
       
 {/* --- EFECTO AURORA BOREAL INFINITA --- */}
       <motion.div 
-        className="absolute top-[-10%] left-[-50%] w-[200vw] h-[150%] pointer-events-none -z-10 blur-[100px] opacity-60 dark:opacity-40 bg-[linear-gradient(110deg,transparent_0%,rgba(0,163,136,0.3)_25%,rgba(234,179,8,0.2)_50%,rgba(0,163,136,0.3)_75%,transparent_100%)] bg-[length:200%_100%]"
+        className="absolute top-[-10%] left-[-50%] w-[200vw] h-[150%] pointer-events-none -z-10 blur-[100px] opacity-60 dark:opacity-40 bg-[linear-gradient(110deg,transparent_0%,rgba(0,163,136,0.3)_25%,rgba(234,179,8,0.2)_50%,rgba(0,163,136,0.3)_75%,transparent_100%)] bg-position-[200%_100%]"
         animate={{
           backgroundPosition: ["200% 0%", "0% 0%"],
         }}
