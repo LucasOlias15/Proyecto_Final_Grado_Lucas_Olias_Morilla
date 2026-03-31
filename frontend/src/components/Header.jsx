@@ -204,7 +204,7 @@ export const Header = ({ toggleMenu }) => {
                                         </li>
                                     )}
                                     <li><Link href="/perfil">Mi Perfil</Link></li>
-                                    <li><a>Mis Pedidos</a></li>
+                                    <li><Link href='/perfil/pedidos'>Mis Pedidos</Link></li>
                                     <div className="divider my-1"></div>
                                     <li><button onClick={handleLogout} className="text-error hover:bg-error/10">Cerrar sesión</button></li>
                                 </>

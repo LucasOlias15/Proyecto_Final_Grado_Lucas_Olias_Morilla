@@ -211,7 +211,7 @@ export const OrdersPage = () => {
                             ) : (
                                 /* --- ESTADO VACÍO RELATIVO (No hay pedidos en ESTA pestaña) --- */
                                 <div className="flex flex-col items-center justify-center text-center p-10 bg-base-100/50 rounded-[3rem] border border-dashed border-base-300 mt-2">
-                                    <div className="w-20 h-20 mb-4 text-base-content/20">
+                                    <div className="w-20 h-20 mb-4 ">
                                         <SearchX className="w-full h-full" strokeWidth={1.5} />
                                     </div>
                                     <h3 className="font-bold text-xl text-base-content mb-2">Nada por aquí</h3>
@@ -254,7 +254,8 @@ export const OrdersPage = () => {
                                         <div key={idx} className="flex justify-between items-center p-4 bg-base-100 border border-base-200 rounded-2xl hover:border-jungle_teal/30 transition-colors">
                                             <div className="flex items-center gap-4">
                                                 <div className="w-12 h-12 rounded-xl bg-base-200 flex items-center justify-center text-xl">
-                                                    📦
+                                                    {/* TODO Mostrar Imagen del producto comprado aqií */}
+                                                    {prod.image}
                                                 </div>
                                                 <div>
                                                     <p className="font-bold text-base-content leading-tight">{prod.nombre}</p>

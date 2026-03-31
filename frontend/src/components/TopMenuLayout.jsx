@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "wouter"; // <-- IMPORTANTE: Añadimos Link de Wouter
+import { Link } from "wouter"; 
 import { Header } from "./Header"; 
 import { Banana, Croissant, Beef, Leaf, House, PackageSearch, ShoppingBag, LayoutList, Wrench, Shirt, Amphora, LocateFixed } from "lucide-react";
 
@@ -7,15 +7,18 @@ export const TopMenuLayout = ({ children }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     // LÓGICA DE USUARIO 
-    // Obtenemos el usuario del localStorage 
     const usuario = JSON.parse(localStorage.getItem('user'));
-    
-    // Comprobamos si hay sesión iniciada y si es dueño
     const estaLogueado = !!usuario;
     const esDueño = usuario?.rol === 'dueño';
 
+    // Función para el botón del Header (abrir/cerrar)
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
+    };
+
+    // Función a prueba de balas solo para los enlaces del menú (cerrar siempre)
+    const closeMenu = () => {
+        setIsMenuOpen(false);
     };
 
     return (
@@ -39,14 +42,11 @@ export const TopMenuLayout = ({ children }) => {
                                 <LayoutList/>
                             </span> Menú Principal
                         </div>
-                        {/*TODO Espacio entre categorias un poco reducido. */}
                         
                         {/* INICIO */}
                         <li>
                             <Link href="/">
-                                {/* 1. Añadido flex, items-center y gap-2 */}
-                                {/* 2. Añadido onClick={toggleMenu} para cerrar el menú */}
-                                <a onClick={toggleMenu} className="text-lg font-medium hover:text-jungle_teal flex items-center gap-3 py-3">
+                                <a onClick={closeMenu} className="text-lg font-medium hover:text-jungle_teal flex items-center gap-3 py-3">
                                     <House size={20}/> Inicio
                                 </a>
                             </Link>
@@ -55,7 +55,7 @@ export const TopMenuLayout = ({ children }) => {
                         {esDueño && (
                             <li>
                                 <Link href={`/panel-tienda/${usuario.id_comercio || usuario.id}`}>
-                                    <a onClick={toggleMenu} className="text-lg font-medium hover:text-jungle_teal flex items-center gap-3 py-3">
+                                    <a onClick={closeMenu} className="text-lg font-medium hover:text-jungle_teal flex items-center gap-3 py-3">
                                         <PackageSearch size={20}/> Mis Productos
                                     </a>
                                 </Link>
@@ -65,17 +65,17 @@ export const TopMenuLayout = ({ children }) => {
                         {estaLogueado && (
                             <li>
                                 <Link href="/perfil/pedidos">
-                                    <a onClick={toggleMenu} className="text-lg font-medium hover:text-jungle_teal flex items-center gap-3 py-3">
+                                    <a onClick={closeMenu} className="text-lg font-medium hover:text-jungle_teal flex items-center gap-3 py-3">
                                         <ShoppingBag size={20}/> Mis Compras
                                     </a>
                                 </Link>
                             </li>
                         )}
 
-                         {/* ENLACE A MAPA  */}
+                         {/* ENLACE A MAPA */}
                         <li>
                             <Link href="/mapa">
-                                <a onClick={toggleMenu} className="text-lg font-medium hover:text-jungle_teal flex items-center gap-3 py-3">
+                                <a onClick={closeMenu} className="text-lg font-medium hover:text-jungle_teal flex items-center gap-3 py-3">
                                     <LocateFixed size={20}/> Mapa Interactivo
                                 </a>
                             </Link>
@@ -86,7 +86,7 @@ export const TopMenuLayout = ({ children }) => {
                         {/* SOPORTE TÉCNICO */}
                         <li>
                             <Link href="/soporte">
-                                <a onClick={toggleMenu} className="opacity-70 text-lg font-medium hover:text-jungle_teal hover:opacity-100 transition-all flex items-center gap-3 py-3"> 
+                                <a onClick={closeMenu} className="opacity-70 text-lg font-medium hover:text-jungle_teal hover:opacity-100 transition-all flex items-center gap-3 py-3"> 
                                     <Wrench size={20}/> Soporte técnico
                                 </a>
                             </Link>
@@ -107,7 +107,7 @@ export const TopMenuLayout = ({ children }) => {
                         <div className="grid grid-cols-2 gap-3 mb-6 relative z-10">
                             {/* Categoría 1: Fruterías */}
                             <Link href="/explorar?categoria=Frutería">
-                                <a onClick={toggleMenu} className="flex items-center gap-3 p-3 bg-base-100 rounded-xl hover:shadow-md hover:border-yellow-500 border border-transparent transition-all cursor-pointer group">
+                                <a onClick={closeMenu} className="flex items-center gap-3 p-3 bg-base-100 rounded-xl hover:shadow-md hover:border-yellow-500 border border-transparent transition-all cursor-pointer group">
                                     <div className="bg-yellow-500/10 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 p-2 rounded-lg group-hover:scale-110 transition-transform">
                                         <Banana className="w-6 h-6"/>
                                     </div>
@@ -117,7 +117,7 @@ export const TopMenuLayout = ({ children }) => {
 
                             {/* Categoría 2: Panaderías */}
                             <Link href="/explorar?categoria=Panadería">
-                                <a onClick={toggleMenu} className="flex items-center gap-3 p-3 bg-base-100 rounded-xl hover:shadow-md hover:border-orange-500 border border-transparent transition-all cursor-pointer group">
+                                <a onClick={closeMenu} className="flex items-center gap-3 p-3 bg-base-100 rounded-xl hover:shadow-md hover:border-orange-500 border border-transparent transition-all cursor-pointer group">
                                     <div className="bg-orange-500/10 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 p-2 rounded-lg group-hover:scale-110 transition-transform">
                                         <Croissant className="w-6 h-6"/>
                                     </div>
@@ -127,7 +127,7 @@ export const TopMenuLayout = ({ children }) => {
 
                             {/* Categoría 3: Carnicerías */}
                             <Link href="/explorar?categoria=Carnicería">
-                                <a onClick={toggleMenu} className="flex items-center gap-3 p-3 bg-base-100 rounded-xl hover:shadow-md hover:border-red-500 border border-transparent transition-all cursor-pointer group">
+                                <a onClick={closeMenu} className="flex items-center gap-3 p-3 bg-base-100 rounded-xl hover:shadow-md hover:border-red-500 border border-transparent transition-all cursor-pointer group">
                                     <div className="bg-red-500/10 dark:bg-red-900/30 text-red-700 dark:text-red-400 p-2 rounded-lg group-hover:scale-110 transition-transform">
                                         <Beef className="w-6 h-6"/>
                                     </div>
@@ -137,7 +137,7 @@ export const TopMenuLayout = ({ children }) => {
 
                             {/* Categoría 4: Bio/Eco */}
                             <Link href="/explorar?categoria=Bio">
-                                <a onClick={toggleMenu} className="flex items-center gap-3 p-3 bg-base-100 rounded-xl hover:shadow-md hover:border-sea_green border border-transparent transition-all cursor-pointer group">
+                                <a onClick={closeMenu} className="flex items-center gap-3 p-3 bg-base-100 rounded-xl hover:shadow-md hover:border-sea_green border border-transparent transition-all cursor-pointer group">
                                     <div className="bg-jungle_teal/10 dark:bg-jungle_teal/30 text-jungle_teal dark:text-jungle_teal p-2 rounded-lg group-hover:scale-110 transition-transform">
                                         <Leaf className="w-6 h-6"/>
                                     </div>
@@ -146,8 +146,8 @@ export const TopMenuLayout = ({ children }) => {
                             </Link>
 
                             {/* Categoría 5: Artesanía/Regalos */}
-                            <Link onClick={toggleMenu} href="/explorar?categoria=Artesanía y regalos">
-                                <a className="flex items-center gap-3 p-3 bg-base-100 rounded-xl hover:shadow-md hover:border-blue-500 border border-transparent transition-all cursor-pointer group">
+                            <Link href="/explorar?categoria=Artesanía y regalos">
+                                <a onClick={closeMenu} className="flex items-center gap-3 p-3 bg-base-100 rounded-xl hover:shadow-md hover:border-blue-500 border border-transparent transition-all cursor-pointer group">
                                     <div className="bg-blue-500/10 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 p-2 rounded-lg group-hover:scale-110 transition-transform">
                                         <Amphora className="w-6 h-6"/>
                                     </div>
@@ -156,8 +156,8 @@ export const TopMenuLayout = ({ children }) => {
                             </Link>
 
                             {/* Categoría 6: Textiles/Moda */}
-                            <Link onClick={toggleMenu} href="/explorar?categoria=Textiles y moda">
-                                <a className="flex items-center gap-3 p-3 bg-base-100 rounded-xl hover:shadow-md hover:border-purple-500 border border-transparent transition-all cursor-pointer group">
+                            <Link href="/explorar?categoria=Textiles y moda">
+                                <a onClick={closeMenu} className="flex items-center gap-3 p-3 bg-base-100 rounded-xl hover:shadow-md hover:border-purple-500 border border-transparent transition-all cursor-pointer group">
                                     <div className="bg-purple-500/10 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 p-2 rounded-lg group-hover:scale-110 transition-transform">
                                         <Shirt className="w-6 h-6"/>
                                     </div>
@@ -172,7 +172,9 @@ export const TopMenuLayout = ({ children }) => {
                                 <h4 className="font-black text-sm md:text-base">¿Tienes un negocio local?</h4>
                                 <p className="text-xs md:text-sm opacity-90">Únete a LocalMarkt gratis</p>
                             </div>
-                            <a onClick={() => document.getElementById('register_shop_modal').showModal()} className="btn btn-sm bg-white text-jungle_teal border-none hover:bg-base-200">Empezar</a>
+                            <button onClick={() => { closeMenu(); document.getElementById('register_shop_modal').showModal(); }} className="btn btn-sm bg-white text-jungle_teal border-none hover:bg-base-200 cursor-pointer">
+                                Empezar
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -182,7 +184,7 @@ export const TopMenuLayout = ({ children }) => {
             {isMenuOpen && (
                 <div
                     className="fixed inset-0 bg-black/40 z-30 backdrop-blur-sm"
-                    onClick={toggleMenu}
+                    onClick={closeMenu}
                 ></div>
             )}
 
