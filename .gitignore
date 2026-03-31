@@ -418,3 +418,5 @@ FodyWeavers.xsd
 *.msp
 
 test.http
+
+backend/src/db/seed.js
