@@ -1,16 +1,58 @@
-import { Link } from "wouter";
-import { Store, User, Mail, Lock, ArrowRight, ShoppingBag, MapPin } from "lucide-react";
 import { motion } from "framer-motion";
+import {
+    AlignLeft,
+    ArrowRight,
+    Image as ImageIcon,
+    Lock,
+    Mail,
+    MapPin,
+    Phone,
+    Store,
+    Tags,
+    User,
+    Users,
+    TrendingUp
+
+} from "lucide-react";
+import { useState } from "react";
+import { Link } from "wouter";
 
 export const RegisterPage = () => {
-    // TODO: Aquí añadirás los estados (useState) para email, password, nombre, tipo de cuenta, etc.
-    // TODO: Aquí añadirás la función handleSubmit o handleRegister
-    // ACORDARSE DE CAMBIAR LOS NOMBRES EN EL FETCH DE REACT PARA QUE SE ENVIEN nombreUsuario y nombreComercio/Tienda
+    // 1. ESTADOS DEL FORMULARIO (Todos inicializados vacíos)
+    const [tipoCuenta, setTipoCuenta] = useState("cliente");
+    
+    const [nombreUsuario, setNombreUsuario] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    
+    // Estados exclusivos del Comercio
+    const [nombreComercio, setNombreComercio] = useState("");
+    const [descripcion, setDescripcion] = useState("");
+    const [categoria, setCategoria] = useState("");
+    const [contacto, setContacto] = useState("");
+    const [direccion, setDireccion] = useState("");
+    const [imagen, setImagen] = useState(null); // null para archivos
+
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
+
+    // 2. FUNCIÓN DE REGISTRO (Lista para tu lógica Fetch)
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError("");
+        
+        // Aquí irá tu fetch a http://localhost:3000/api/users/register
+        // Recuerda enviar: { nombreUsuario, email, clave: password, rol: tipoCuenta, nombreComercio, descripcion, categoria, contacto, direccion }
+        console.log("Enviando datos...", { tipoCuenta, nombreUsuario, nombreComercio, email, categoria });
+        
+        // Simulamos un tiempo de carga
+        setTimeout(() => setLoading(false), 1000); 
+    };
 
     return (
         <div className="min-h-screen bg-base-200 flex items-center justify-center p-4 sm:p-8">
             
-            {/* Contenedor Principal Split-Screen animado */}
             <motion.div 
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -18,108 +60,253 @@ export const RegisterPage = () => {
                 className="w-full max-w-5xl bg-base-100 rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col md:flex-row border border-white/20 z-10"
             >
                 
-                {/* LADO IZQUIERDO: Branding y Bienvenida */}
-                <div className="md:w-5/12 bg-jungle_teal-300 p-10 flex flex-col relative overflow-hidden text-white border-r border-white/10 shadow-inner">
-                    
-                    {/* IMAGEN DEL LOGO EN LA ESQUINA SUPERIOR IZQUIERDA (Efecto Espejo) */}
-                    <div className="absolute -top-20 -left-32 w-110 h-110 opacity-95 pointer-events-none drop-shadow-2xl">
-                        <img 
-                            src="/logo.png" 
-                            alt="Logo LocalMarkt" 
-                            className="w-full h-full object-contain"
-                        />
-                    </div>
+                {/* ========================================== */}
+{/* LADO IZQUIERDO: Branding                   */}
+{/* ========================================== */}
+<div className="md:w-5/12 bg-[#004d39] relative overflow-hidden text-white border-r border-white/10 shadow-inner">
+    
+    {/* 1. CONTENEDOR STICKY: Mantiene el contenido visible al hacer scroll */}
+    <div className="sticky top-0 p-10 flex flex-col min-h-screen md:h-screen">
+        
+        {/* IMAGEN DEL LOGO */}
+        <div className="absolute -top-18 -left-34 w-110 h-110 opacity-95 pointer-events-none drop-shadow-2xl">
+            <img 
+                src="/logo.png" 
+                alt="Logo LocalMarkt" 
+                className="w-full h-full object-contain"
+            />
+        </div>
 
-                    {/* Espaciador para empujar el texto hacia abajo */}
-                    <div className="flex-1 min-h-55"></div>
+        <div className="flex-1 min-h-[220px]"></div>
 
-                    {/* Textos alineados a la izquierda */}
-                    <div className="relative z-10 text-left mt-auto">
-                        <h3 className="font-black text-3xl tracking-tight text-white mb-6">
-                            LocalMarkt
-                        </h3>
-                        <h2 className="text-4xl font-black mb-4 leading-tight tracking-tight text-yellow-400">
-                            El barrio en <br/> <span className="text-yellow-500/65">tu bolsillo</span>
-                        </h2>
-                        <p className="text-white/60 text-lg font-medium max-w-sm mb-8">
-                            Únete a la comunidad. Compra productos frescos, apoya al comercio local y descubre los tesoros de tu ciudad.
-                        </p>
-                        
-                        <div className="flex items-center gap-3 text-sm font-bold bg-white/10 w-fit px-4 py-3 rounded-xl backdrop-blur-sm border border-white/20 shadow-lg">
-                            <MapPin size={20} className="text-yellow-400" />
-                            Más de 500 comercios ya están aquí
-                        </div>
-                    </div>
+        <div className="relative z-10 text-left mt-auto pb-10">
+            <h3 className="font-black text-3xl tracking-tight text-white mb-6">LocalMarkt</h3>
+            
+            {/* 2. CONTENIDO DINÁMICO: Cambia según la pestaña */}
+            {tipoCuenta === "cliente" ? (
+                <div className="animate-fade-in">
+                    <h2 className="text-4xl font-black mb-4 leading-tight tracking-tight text-yellow-400">
+                        El barrio en <br/> <span className="text-yellow-500/65">tu bolsillo</span>
+                    </h2>
+                    <p className="text-white/60 text-lg font-medium max-w-sm mb-8">
+                        Únete a la comunidad. Compra productos frescos, apoya al comercio local y descubre los tesoros de tu ciudad.
+                    </p>
                 </div>
+            ) : (
+                <div className="animate-fade-in">
+                    <h2 className="text-4xl font-black mb-6 leading-tight tracking-tight text-yellow-400">
+                        Impulsa tu <br/> <span className="text-yellow-500/65">negocio local</span>
+                    </h2>
+                    
+                    {/* Lista de beneficios para el Comercio */}
+                    <ul className="space-y-4 mb-8">
+                        <li className="flex items-center gap-4 text-white/80 font-medium text-lg">
+                            <div className="bg-yellow-500/20 p-2.5 rounded-xl text-yellow-400">
+                                <Store size={22} />
+                            </div>
+                            Escaparate digital 24/7
+                        </li>
+                        <li className="flex items-center gap-4 text-white/80 font-medium text-lg">
+                            <div className="bg-sea_green/20 p-2.5 rounded-xl text-sea_green">
+                                <Users size={22} />
+                            </div>
+                            Conecta con tus vecinos
+                        </li>
+                        <li className="flex items-center gap-4 text-white/80 font-medium text-lg">
+                            <div className="bg-blue-500/20 p-2.5 rounded-xl text-blue-400">
+                                <TrendingUp size={22} />
+                            </div>
+                            Aumenta tus ventas
+                        </li>
+                    </ul>
+                </div>
+            )}
+
+            {/* Badge común para ambos */}
+            <div className="flex items-center gap-3 text-sm font-bold bg-white/10 w-fit px-4 py-3 rounded-xl backdrop-blur-sm border border-white/20 shadow-lg mt-4">
+                <MapPin size={20} className="text-yellow-400" />
+                Más de 500 comercios ya están aquí
+            </div>
+        </div>
+    </div>
+</div>
 
                 {/* ========================================== */}
-                {/* LADO DERECHO: Formulario de Registro         */}
+                {/* LADO DERECHO: Formulario                   */}
                 {/* ========================================== */}
                 <div className="md:w-7/12 p-8 sm:p-12 lg:p-16 flex flex-col justify-center bg-base-100 relative">
                     
                     <div className="mb-8">
-                        <h1 className="text-4xl font-black text-base-content mb-3 leading-tight tracking-tight">Crear una cuenta</h1>
+                        <h1 className="text-4xl font-black text-base-content mb-3 leading-tight tracking-tight">Crear cuenta</h1>
                         <p className="text-base-content/60 text-lg font-medium">¿Cómo te gustaría unirte a nosotros?</p>
                     </div>
 
-                    {/* SELECTOR DE TIPO DE CUENTA (TABS) */}
-                    {/* TODO: Añadir lógica onClick para alternar la clase visual y el estado */}
+                    {/* SELECTOR DE TIPO DE CUENTA CON TOGGLE DINÁMICO */}
                     <div className="flex bg-base-200 p-1.5 rounded-2xl mb-8 border border-base-300 shadow-sm">
-                        
-                        {/* Botón Pestaña: Cliente (Visualmente Activo por defecto) */}
-                        <button type="button" className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl bg-base-100 text-base-content shadow-sm font-bold text-sm transition-all cursor-pointer">
-                            <User size={18} />
-                            Soy Cliente
+                        <button 
+                            type="button" 
+                            onClick={() => setTipoCuenta("cliente")}
+                            className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${
+                                tipoCuenta === "cliente" ? "bg-base-100 text-base-content shadow-sm" : "bg-transparent text-base-content/60 hover:text-base-content hover:bg-base-200/50"
+                            }`}
+                        >
+                            <User size={18} /> Soy Cliente
                         </button>
-                        
-                        {/* Botón Pestaña: Comercio (Visualmente Inactivo) */}
-                        <button type="button" className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl bg-transparent text-base-content/60 hover:text-base-content font-bold text-sm transition-all hover:bg-base-200/50 cursor-pointer">
-                            <Store size={18} />
-                            Soy Comercio
+                        <button 
+                            type="button" 
+                            onClick={() => setTipoCuenta("dueño")}
+                            className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${
+                                tipoCuenta === "dueño" ? "bg-base-100 text-base-content shadow-sm" : "bg-transparent text-base-content/60 hover:text-base-content hover:bg-base-200/50"
+                            }`}
+                        >
+                            <Store size={18} /> Soy Comercio
                         </button>
                     </div>
 
                     {/* FORMULARIO */}
-                    {/* TODO: Añadir onSubmit al form */}
-                    <form className="flex flex-col gap-6">
+                    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                         
-                        {/* --- ZONA CONDICIONAL --- */}
-                        {/* TODO: Renderizar dinámicamente según la pestaña seleccionada */}
-                        
-                        {/* Campos para CLIENTE */}
+                        {/* Campo común: Nombre Usuario */}
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-xs font-bold uppercase tracking-widest text-base-content/70 ml-1">Nombre completo</label>
+                            <label className="text-xs font-bold uppercase tracking-widest text-base-content/70 ml-1">Tu Nombre Completo</label>
                             <div className="relative">
                                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-base-content/40">
                                     <User size={18} />
                                 </div>
-                                {/* Mismas clases actualizadas del Login */}
                                 <input 
                                     type="text" 
                                     placeholder="Ej. Laura Gómez" 
+                                    value={nombreUsuario}
+                                    onChange={(e) => setNombreUsuario(e.target.value)}
                                     className="w-full pl-12 pr-4 py-4 rounded-xl bg-base-200/50 border-2 border-transparent text-base text-base-content outline-none focus:bg-base-100 focus:border-jungle_teal focus:ring-2 focus:ring-jungle_teal/10 transition-all"
+                                    required
                                 />
                             </div>
                         </div>
 
-                        {/* Campos para COMERCIO (Comentado para cuando lo necesites) */}
-                        {/* <div className="flex flex-col gap-1.5">
-                            <label className="text-xs font-bold uppercase tracking-widest text-base-content/70 ml-1">Nombre de la Tienda</label>
-                            <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-base-content/40">
-                                    <Store size={18} />
+                        {/* --- CAMPOS EXCLUSIVOS DEL COMERCIO --- */}
+                        {tipoCuenta === "dueño" && (
+                            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="flex flex-col gap-6 overflow-hidden">
+                                
+                                <div className="divider my-0 text-xs font-bold uppercase text-base-content/30">Datos de tu tienda</div>
+
+                                {/* Nombre del comercio */}
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-xs font-bold uppercase tracking-widest text-base-content/70 ml-1">Nombre de la Tienda</label>
+                                    <div className="relative">
+                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-base-content/40">
+                                            <Store size={18} />
+                                        </div>
+                                        <input 
+                                            type="text" 
+                                            placeholder="Ej. Frutería Loli" 
+                                            value={nombreComercio}
+                                            onChange={(e) => setNombreComercio(e.target.value)}
+                                            className="w-full pl-12 pr-4 py-4 rounded-xl bg-base-200/50 border-2 border-transparent text-base text-base-content outline-none focus:bg-base-100 focus:border-jungle_teal focus:ring-2 focus:ring-jungle_teal/10 transition-all"
+                                            required={tipoCuenta === "dueño"}
+                                        />
+                                    </div>
                                 </div>
-                                <input 
-                                    type="text" 
-                                    placeholder="Ej. Frutería Loli" 
-                                    className="w-full pl-12 pr-4 py-4 rounded-xl bg-base-200/50 border-2 border-transparent text-base text-base-content outline-none focus:bg-base-100 focus:border-jungle_teal focus:ring-2 focus:ring-jungle_teal/10 transition-all"
-                                />
-                            </div>
-                        </div>
-                        */}
 
-                        {/* --- ZONA COMÚN (Email y Contraseña) --- */}
-                        
+                                {/* Categoría */}
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-xs font-bold uppercase tracking-widest text-base-content/70 ml-1">Categoría</label>
+                                    <div className="relative">
+                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-base-content/40">
+                                            <Tags size={18} />
+                                        </div>
+                                        <select 
+                                            value={categoria}
+                                            onChange={(e) => setCategoria(e.target.value)}
+                                            className="w-full pl-12 pr-4 py-4 rounded-xl bg-base-200/50 border-2 border-transparent text-base text-base-content outline-none focus:bg-base-100 focus:border-jungle_teal focus:ring-2 focus:ring-jungle_teal/10 transition-all appearance-none cursor-pointer"
+                                            required={tipoCuenta === "dueño"}
+                                        >
+                                            <option value="" disabled>Selecciona una categoría</option>
+                                            <option value="Frutería">Frutería</option>
+                                            <option value="Panadería">Panadería</option>
+                                            <option value="Carnicería">Carnicería</option>
+                                            <option value="Pastelería">Pastelería</option>
+                                            <option value="Bio">Productos Bio/Eco</option>
+                                            <option value="Artesanía y regalos">Artesanía y Regalos</option>
+                                            <option value="Textiles y moda">Textiles y Moda</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                {/* Descripción */}
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-xs font-bold uppercase tracking-widest text-base-content/70 ml-1">Descripción</label>
+                                    <div className="relative">
+                                        <div className="absolute top-4 left-4 pointer-events-none text-base-content/40">
+                                            <AlignLeft size={18} />
+                                        </div>
+                                        <textarea 
+                                            placeholder="Cuéntanos sobre tus productos..." 
+                                            value={descripcion}
+                                            onChange={(e) => setDescripcion(e.target.value)}
+                                            className="w-full pl-12 pr-4 py-4 rounded-xl bg-base-200/50 border-2 border-transparent text-base text-base-content outline-none focus:bg-base-100 focus:border-jungle_teal focus:ring-2 focus:ring-jungle_teal/10 transition-all min-h-[100px] resize-none"
+                                            required={tipoCuenta === "dueño"}
+                                        ></textarea>
+                                    </div>
+                                </div>
+
+                                {/* Contacto y Dirección (Dos columnas) */}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div className="flex flex-col gap-1.5">
+                                        <label className="text-xs font-bold uppercase tracking-widest text-base-content/70 ml-1">Teléfono</label>
+                                        <div className="relative">
+                                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-base-content/40">
+                                                <Phone size={18} />
+                                            </div>
+                                            <input 
+                                                type="tel" 
+                                                placeholder="600 000 000" 
+                                                value={contacto}
+                                                onChange={(e) => setContacto(e.target.value)}
+                                                className="w-full pl-12 pr-4 py-4 rounded-xl bg-base-200/50 border-2 border-transparent text-base text-base-content outline-none focus:bg-base-100 focus:border-jungle_teal transition-all"
+                                                required={tipoCuenta === "dueño"}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-col gap-1.5">
+                                        <label className="text-xs font-bold uppercase tracking-widest text-base-content/70 ml-1">Dirección</label>
+                                        <div className="relative">
+                                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-base-content/40">
+                                                <MapPin size={18} />
+                                            </div>
+                                            <input 
+                                                type="text" 
+                                                placeholder="Calle Principal, 1" 
+                                                value={direccion}
+                                                onChange={(e) => setDireccion(e.target.value)}
+                                                className="w-full pl-12 pr-4 py-4 rounded-xl bg-base-200/50 border-2 border-transparent text-base text-base-content outline-none focus:bg-base-100 focus:border-jungle_teal transition-all"
+                                                required={tipoCuenta === "dueño"}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Logo / Imagen */}
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-xs font-bold uppercase tracking-widest text-base-content/70 ml-1">Logo o Foto (Opcional)</label>
+                                    <div className="relative">
+                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-base-content/40 z-10">
+                                            <ImageIcon size={18} />
+                                        </div>
+                                        <input 
+                                            type="file" 
+                                            accept="image/*"
+                                            onChange={(e) => setImagen(e.target.files[0])}
+                                            className="file-input w-full pl-12 bg-base-200/50 border-2 border-transparent text-base text-base-content outline-none focus:bg-base-100 focus:border-jungle_teal transition-all rounded-xl"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="divider my-0 text-xs font-bold uppercase text-base-content/30">Datos de acceso</div>
+                            </motion.div>
+                        )}
+
+                        {/* --- CAMPOS COMUNES (Email y Clave) --- */}
                         <div className="flex flex-col gap-1.5">
                             <label className="text-xs font-bold uppercase tracking-widest text-base-content/70 ml-1">Correo Electrónico</label>
                             <div className="relative">
@@ -129,7 +316,10 @@ export const RegisterPage = () => {
                                 <input 
                                     type="email" 
                                     placeholder="tu@email.com" 
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
                                     className="w-full pl-12 pr-4 py-4 rounded-xl bg-base-200/50 border-2 border-transparent text-base text-base-content outline-none focus:bg-base-100 focus:border-jungle_teal focus:ring-2 focus:ring-jungle_teal/10 transition-all"
+                                    required
                                 />
                             </div>
                         </div>
@@ -143,28 +333,32 @@ export const RegisterPage = () => {
                                 <input 
                                     type="password" 
                                     placeholder="••••••••" 
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
                                     className="w-full pl-12 pr-4 py-4 rounded-xl bg-base-200/50 border-2 border-transparent text-base text-base-content outline-none focus:bg-base-100 focus:border-jungle_teal focus:ring-2 focus:ring-jungle_teal/10 transition-all"
+                                    required
                                 />
                             </div>
                         </div>
 
-                        {/* TODO: Añadir bloque de errores {error && (...)} igual que en Login */}
+                        {error && (
+                            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-sm font-bold text-center bg-red-100 p-3 rounded-xl mt-2">
+                                {error}
+                            </motion.div>
+                        )}
 
-                        {/* Botón de Enviar */}
-                        <button type="submit" className="btn bg-jungle_teal hover:bg-sea_green text-white border-none rounded-xl h-14 mt-4 shadow-md shadow-jungle_teal/20 text-lg font-bold">
-                            {/* TODO: Renderizado condicional del spinner {loading ? ... : ... } */}
-                            Comenzar ahora <ArrowRight size={20} className="ml-1" />
+                        <button type="submit" disabled={loading} className="btn bg-jungle_teal hover:bg-sea_green text-white border-none rounded-xl h-14 mt-4 shadow-md shadow-jungle_teal/20 text-lg font-bold">
+                            {loading ? <span className="loading loading-spinner"></span> : (
+                                <>Comenzar ahora <ArrowRight size={20} className="ml-1" /></>
+                            )}
                         </button>
                     </form>
 
-                    {/* Footer del Formulario */}
                     <div className="mt-10 text-center">
                         <p className="text-base font-medium text-base-content/70">
                             ¿Ya tienes una cuenta? {' '}
                             <Link href="/login">
-                                <a className="text-jungle_teal font-bold hover:underline cursor-pointer">
-                                    Inicia sesión aquí
-                                </a>
+                                <a className="text-jungle_teal font-bold hover:underline cursor-pointer">Inicia sesión aquí</a>
                             </Link>
                         </p>
                     </div>
