@@ -1,21 +1,29 @@
 import { getUserByEmail, createUser, getUserById , updateUserInfo} from "../models/userModel.js";
+import { createComercio } from "../models/comercioModel.js";
 import { getComercioByUsuarioId } from "../models/comercioModel.js";
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
 export const registrarUsuario = async (req, res) => {
     try {
-        const { nombre, email, clave, ubicacion } = req.body;
+        const { nombreUsuario, email, clave, ubicacion,rol,nombreComercio,descripcion, categoria, contacto, direccion, latitud, longitud, imagen } = req.body;
         // Verificar si el usuario ya existe
         const existingUser = await getUserByEmail(email);
         if (existingUser) {
             //Se envia codigo de error en caso de que el usuario ya exista en la base de datos
-            return res.status(400).json({ error: "El usuario ya existe" });
+            return res.status(409).json({ error: "El usuario ya existe." });
         }
         // Se encripta la clave si el usuario no existe 
         const hashedClave = await bcrypt.hash(clave, 10);
         // Si el usuario no existe, se crea uno nuevo
-        const userId = await createUser(nombre, email, hashedClave, ubicacion);
+        let userId;
+        if (rol==="cliente"){
+            userId = await createUser(nombreUsuario, email, hashedClave, ubicacion, rol);
+        }else if (rol==="dueño"){
+            userId = await createUser(nombreUsuario, email, hashedClave, ubicacion, rol);
+            await createComercio(nombreUsuario ,userId,nombreComercio,descripcion, categoria, contacto, direccion, latitud, longitud, imagen)
+        }
+        
         // Se envia una respuesta exitosa con el ID del nuevo usuario
         return res.status(201).json({ 
             id: userId,
