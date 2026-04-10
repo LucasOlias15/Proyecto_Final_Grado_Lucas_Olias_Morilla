@@ -9,6 +9,7 @@ import { StorePanelPage } from './pages/StorePanelPage';
 import { Profile } from './pages/Profile';
 import { ExplorePage } from './pages/ExplorePage';
 import { OrdersPage } from './pages/OrdersPage';
+import { RegisterPage } from './pages/RegisterPage';
 
 function App() {
   return (
@@ -40,6 +41,9 @@ function App() {
 
         {/* 8. Ruta de gestíon de los pedidos realizados por el usuario*/}
         <Route path="/perfil/pedidos" component={OrdersPage}/>
+
+        {/* 9. Ruta de registro de comercios y usuarios*/}
+        <Route path="/registro" component={RegisterPage}/>
 
         {/* Ruta 404: Captura errores de URL */}
           <Route>

@@ -1,25 +1,24 @@
 import { useState } from "react";
+import { Link, useLocation } from "wouter";
+import { Mail, Lock, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
-import { useLocation, Link } from "wouter";
 
 export const LoginPage = () => {
-  // Estados para controlar el formulario
+  // Estados del formulario
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  
-  // Hook de wouter para redirigir al usuario tras el login
   const [, setLocation] = useLocation();
 
+  // Lógica de Login
   const handleLogin = async (e) => {
-    e.preventDefault(); // Evita que la página se recargue al enviar el formulario
+    e.preventDefault();
     setLoading(true);
-    setError(""); // Limpiamos errores previos
+    setError("");
 
     try {
-      // Llamada a tu API de Node.js (Asegúrate de que la URL coincida con tu backend)
-const res = await fetch("http://localhost:3000/api/users/login", {
+      const res = await fetch("http://localhost:3000/api/users/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, clave: password }),
@@ -27,21 +26,12 @@ const res = await fetch("http://localhost:3000/api/users/login", {
 
       const data = await res.json();
 
-      if (!res.ok) {
-        throw new Error(data.error || "Credenciales incorrectas");
-      }
+      if (!res.ok) throw new Error(data.error || "Credenciales incorrectas");
 
-// ¡Éxito! Guardamos el token en el navegador (localStorage)
       localStorage.setItem("token", data.token);
-      
-      // Guardamos los datos del usuario en Localstorage user
-      if (data.user) {
-        localStorage.setItem("user", JSON.stringify(data.user));
-      }
+      if (data.user) localStorage.setItem("user", JSON.stringify(data.user));
 
-      // Redirigimos al usuario a su panel o a la página principal
       setLocation("/");
-
     } catch (err) {
       setError(err.message);
     } finally {
@@ -50,80 +40,140 @@ const res = await fetch("http://localhost:3000/api/users/login", {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-base-200 relative overflow-hidden px-4">
-      
-      {/* Círculos decorativos de fondo (Estilo que ya usabas) */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-jungle_teal/20 rounded-full blur-[100px] -z-10 animate-pulse"></div>
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-yellow-400/10 rounded-full blur-[100px] -z-10"></div>
-
-      <motion.div 
+    <div className="min-h-screen bg-base-200 flex items-center justify-center p-4 sm:p-8">
+      {/* Contenedor Principal Split-Screen */}
+      <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md bg-base-100 p-8 rounded-[2.5rem] shadow-2xl border border-white/20 z-10"
+        className="w-full max-w-5xl bg-base-100 rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col md:flex-row border border-white/20 z-10"
       >
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-black text-base-content tracking-tight mb-2">
-            Bienvenido <br/> de <span className="text-transparent bg-clip-text bg-linear-to-r from-jungle_teal to-yellow-500">nuevo</span>
-          </h1>
-          <p className="text-base-content/60 font-medium">
-            Inicia sesión para gestionar tu comercio
-          </p>
+        {/* LADO IZQUIERDO: Formulario de Login        */}
+  
+        <div className="md:w-7/12 p-8 sm:p-12 lg:p-16 flex flex-col justify-center bg-base-100 relative">
+          <div className="mb-10 text-center md:text-left">
+            <h1 className="text-4xl font-black text-base-content mb-3 leading-tight tracking-tight">
+              Bienvenido <br /> de{" "}
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-jungle_teal to-yellow-500">
+                nuevo
+              </span>
+            </h1>
+            <p className="text-base-content/60 text-lg font-medium max-w-sm mx-auto md:mx-0">
+              Inicia sesión para gestionar tus compras o tu comercio.
+            </p>
+          </div>
+
+          <form onSubmit={handleLogin} className="flex flex-col gap-6">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-bold uppercase tracking-widest text-base-content/70 ml-1">
+                Correo Electrónico
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-base-content/40">
+                  <Mail size={18} />
+                </div>
+                <input
+                  type="email"
+                  placeholder="LocalMarkt@email.com"
+                  className="w-full pl-12 pr-4 py-4 rounded-xl bg-base-200/50 border-2 border-transparent text-base text-base-content outline-none focus:bg-base-100 focus:border-jungle_teal focus:ring-2 focus:ring-jungle_teal/10 transition-all"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-bold uppercase tracking-widest text-base-content/70 ml-1 flex justify-between">
+                <span>Contraseña</span>
+                <a
+                  href="#"
+                  className="text-jungle_teal hover:underline normal-case tracking-normal text-sm font-semibold"
+                >
+                  ¿Olvidaste tu contraseña?
+                </a>
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-base-content/40">
+                  <Lock size={18} />
+                </div>
+                <input
+                  type="password"
+                  placeholder="••••••••"
+                  className="w-full pl-12 pr-4 py-4 rounded-xl bg-base-200/50 border-2 border-transparent text-base text-base-content outline-none focus:bg-base-100 focus:border-jungle_teal focus:ring-2 focus:ring-jungle_teal/10 transition-all"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-red-500 text-sm font-bold text-center bg-red-100 p-3 rounded-xl mt-2"
+              >
+                {error}
+              </motion.div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn bg-jungle_teal hover:bg-sea_green text-white border-none rounded-xl h-14 mt-4 shadow-md shadow-jungle_teal/20 text-lg font-bold"
+            >
+              {loading ? (
+                <span className="loading loading-spinner"></span>
+              ) : (
+                <>
+                  Acceder ahora <ArrowRight size={20} className="ml-1" />
+                </>
+              )}
+            </button>
+          </form>
+
+          <div className="mt-10 text-center">
+            <p className="text-base font-medium text-base-content/70">
+              ¿Aún no tienes cuenta?{" "}
+              <Link href="/registro">
+                <a className="text-jungle_teal font-bold hover:underline cursor-pointer">
+                  Regístrate aquí
+                </a>
+              </Link>
+            </p>
+          </div>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-6">
-          {/* Campo Email */}
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text font-bold text-base-content/80">Correo Electrónico</span>
-            </label>
-            <input 
-              type="email" 
-              placeholder="salvatore@regina.com" 
-              className="input input-bordered w-full rounded-2xl focus:border-jungle_teal focus:ring-2 focus:ring-jungle_teal/20" 
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
+        {/* LADO DERECHO: Branding y Bienvenida */}
+
+        <div className="md:w-5/12 bg-jungle_teal-300 p-10 flex flex-col relative overflow-hidden text-white border-l border-white/10 shadow-inner">
+          <div className="absolute -top-20 -right-30 w-120 h-120 opacity-95 pointer-events-none drop-shadow-2xl">
+            <img
+              src="/logo.png"
+              alt="Logo LocalMarkt"
+              className="w-full h-full object-contain"
             />
           </div>
 
-          {/* Campo Contraseña */}
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text font-bold text-base-content/80">Contraseña</span>
-            </label>
-            <input 
-              type="password" 
-              placeholder="••••••••" 
-              className="input input-bordered w-full rounded-2xl focus:border-jungle_teal focus:ring-2 focus:ring-jungle_teal/20" 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+          {/* Espaciador para empujar el texto hacia abajo, dejando sitio al logo */}
+          <div className="flex-1 min-h-55"></div>
+
+          {/* Textos alineados a la derecha */}
+          <div className="relative z-10 text-right mt-auto">
+            <h3 className="font-black text-3xl tracking-tight text-yellow-500">
+              LocalMarkt
+            </h3>
+            <h2 className="text-4xl font-black mb-4 leading-tight tracking-tight text-white">
+              Tu barrio <br /> <span className="text-white/80">te espera</span>
+            </h2>
+            <p className="text-white/60 text-lg font-medium ml-auto max-w-sm">
+              Inicia sesión para conectar con los comercios más frescos y apoyar
+              la economía de tu ciudad.
+            </p>
           </div>
-
-          {/* Mensaje de Error */}
-          {error && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-500 text-sm font-bold text-center bg-red-100 p-3 rounded-xl">
-              {error}
-            </motion.div>
-          )}
-
-          {/* Botón Submit */}
-          <button 
-            type="submit" 
-            className="btn w-full bg-jungle_teal hover:bg-teal-700 text-white border-none rounded-2xl text-lg font-bold"
-            disabled={loading}
-          >
-            {loading ? <span className="loading loading-spinner"></span> : "Entrar al Panel"}
-          </button>
-        </form>
-
-        <div className="mt-8 text-center text-sm font-medium text-base-content/60">
-          ¿No tienes una cuenta? <Link href="/registro" className="text-jungle_teal hover:underline font-bold">Regístrate aquí</Link>
         </div>
       </motion.div>
-
     </div>
   );
 };
