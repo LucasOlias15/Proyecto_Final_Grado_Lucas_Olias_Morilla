@@ -1,12 +1,45 @@
 import { getUserByEmail, createUser, getUserById , updateUserInfo} from "../models/userModel.js";
 import { createComercio } from "../models/comercioModel.js";
 import { getComercioByUsuarioId } from "../models/comercioModel.js";
+import { nombreUsuarioRegEx,emailRegEx,claveRegEx,telefonoRegEx,nombreComercioRegEx,direccionRegEx,descripcionRegEx } from "../../../common/validaciones.js";
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
 export const registrarUsuario = async (req, res) => {
+
     try {
-        const { nombreUsuario, email, clave, ubicacion,rol,nombreComercio,descripcion, categoria, contacto, direccion, latitud, longitud, imagen } = req.body;
+
+    let fotoTienda = "";
+        if (req.file){
+            fotoTienda = req.file.path;
+        }else{
+            fotoTienda = "https://res.cloudinary.com/defaik2fl/image/upload/v1776084820/Gemini_Generated_Image_cswtzlcswtzlcswt_fn6vew.png";
+        }
+
+        const { nombreUsuario, email, clave, ubicacion,rol,nombreComercio,descripcion, categoria, contacto, direccion, latitud, longitud } = req.body;
+       // Verificamos los campos comunes a dueños y clientes que vienen en el body
+       if (!nombreUsuarioRegEx.test(nombreUsuario)){
+            return res.status(400).json({ error: "Formato de nombre de usuario inválido. " });
+       } else if (!emailRegEx.test(email)){
+            return res.status(400).json({ error: "Formato de email inválido. " });      
+       }else if (!claveRegEx.test(clave)){
+            return res.status(400).json({ error: "Formato de contraseña inválido. " });      
+       }
+       
+        //Verificamos los campos específicos de los dueños
+        if (rol==="dueño"){
+            if (!telefonoRegEx.test(contacto)){
+                return res.status(400).json({ error: "Formato de número de teléfono inválido. " });      
+            }else if (!nombreComercioRegEx.test(nombreComercio)){
+                    return res.status(400).json({ error: "Formato de nombre de comercio inválido. " });      
+            }else if (!direccionRegEx.test(direccion)){
+                    return res.status(400).json({ error: "Formato de direccion inválido. " });      
+            }else if (!descripcionRegEx.test(descripcion)){
+                    return res.status(400).json({ error: "Formato de descripcion inválido. " });      
+            }
+        }
+       
+       
         // Verificar si el usuario ya existe
         const existingUser = await getUserByEmail(email);
         if (existingUser) {
@@ -21,15 +54,17 @@ export const registrarUsuario = async (req, res) => {
             userId = await createUser(nombreUsuario, email, hashedClave, ubicacion, rol);
         }else if (rol==="dueño"){
             userId = await createUser(nombreUsuario, email, hashedClave, ubicacion, rol);
-            await createComercio(nombreUsuario ,userId,nombreComercio,descripcion, categoria, contacto, direccion, latitud, longitud, imagen)
+            await createComercio(nombreComercio, userId, descripcion, categoria, contacto, direccion, latitud, longitud, fotoTienda);
         }
         
         // Se envia una respuesta exitosa con el ID del nuevo usuario
         return res.status(201).json({ 
             id: userId,
             message: "Usuario OK" });
-    } catch (error) {
-        // Aquí manejaremos los errores
+    }  catch (error) {
+        // Esta línea es magia pura para depurar:
+        console.error("🔥 ERROR REAL AL CREAR COMERCIO:", error); 
+        
         return res.status(500).json({ error: "Error al registrar el usuario" });
     }
 };

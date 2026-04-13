@@ -13,8 +13,17 @@ import {
   Users,
   TrendingUp,
 } from "lucide-react";
+import {
+  nombreUsuarioRegEx,
+  emailRegEx,
+  claveRegEx,
+  telefonoRegEx,
+  nombreComercioRegEx,
+  direccionRegEx,
+  descripcionRegEx,
+} from "../../../common/validaciones.js";
 import { useState } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 
 export const RegisterPage = () => {
   // 1. ESTADOS DEL FORMULARIO (Todos inicializados vacíos)
@@ -35,24 +44,78 @@ export const RegisterPage = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const [, setLocation] = useLocation();
+
   // 2. FUNCIÓN DE REGISTRO (Lista para tu lógica Fetch)
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Verificamos los campos comunes a dueños y clientes que vienen en el body
+    if (!nombreUsuarioRegEx.test(nombreUsuario)) {
+      setError("El nombre debe tener entre 3 y 80 caracteres (solo letras).");
+      return;
+    } else if (!emailRegEx.test(email)) {
+      setError("Introduce un correo electrónico válido (ejemplo@correo.com).");
+      return;
+    } else if (!claveRegEx.test(password)) {
+      setError("La clave debe tener 8+ caracteres, una mayúscula, una minúscula y un número.");
+      return;
+    }
+
+    //Verificamos los campos específicos de los dueños
+    if (tipoCuenta === "dueño") {
+      if (!telefonoRegEx.test(contacto)) {
+        setError("Introduce un número de teléfono válido (9 dígitos).");
+        return;
+      } else if (!nombreComercioRegEx.test(nombreComercio)) {
+        setError("Nombre de tienda inválido (mínimo 2 caracteres, evita símbolos raros).");
+        return;
+      } else if (!direccionRegEx.test(direccion)) {
+        setError("La dirección debe ser más específica (mínimo 5 caracteres).");
+        return;
+      } else if (!descripcionRegEx.test(descripcion)) {
+        setError("La descripción debe tener entre 10 y 500 caracteres.");
+        return;
+      }
+    }
+
     setLoading(true);
     setError("");
 
-    // Aquí irá tu fetch a http://localhost:3000/api/users/register
-    // Recuerda enviar: { nombreUsuario, email, clave: password, rol: tipoCuenta, nombreComercio, descripcion, categoria, contacto, direccion }
-    console.log("Enviando datos...", {
-      tipoCuenta,
-      nombreUsuario,
-      nombreComercio,
-      email,
-      categoria,
-    });
+    //FormData para enviar la imagen y los datos en un solo paquete
+    const paqueteDeDatos = new FormData();
+    paqueteDeDatos.append("email", email);
+    paqueteDeDatos.append("clave", password);
+    paqueteDeDatos.append("nombreUsuario", nombreUsuario);
+    paqueteDeDatos.append("rol", tipoCuenta);
+    paqueteDeDatos.append("nombreComercio", nombreComercio);
+    paqueteDeDatos.append("descripcion", descripcion);
+    paqueteDeDatos.append("categoria", categoria);
+    paqueteDeDatos.append("contacto", contacto);
+    paqueteDeDatos.append("direccion", direccion);
+    paqueteDeDatos.append("ubicacion", "");
 
-    // Simulamos un tiempo de carga
-    setTimeout(() => setLoading(false), 1000);
+    if (imagen) {
+      paqueteDeDatos.append("imagen", imagen);
+    }
+
+    try {
+      const res = await fetch("http://localhost:3000/api/users/registro", {
+        method: "POST",
+        body: paqueteDeDatos,
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error);
+        return;
+      }
+      setLocation("/");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -396,7 +459,7 @@ export const RegisterPage = () => {
                 <span className="loading loading-spinner"></span>
               ) : (
                 <>
-                  Comenzar ahora <ArrowRight size={20} className="ml-1" />
+                    Registrarme <ArrowRight size={20} className="ml-1" />
                 </>
               )}
             </button>

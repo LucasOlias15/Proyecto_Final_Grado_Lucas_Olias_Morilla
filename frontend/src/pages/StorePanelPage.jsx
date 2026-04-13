@@ -5,6 +5,7 @@ import { useRoute, Link } from "wouter";
 // 🌟 Definimos la URL de la API de forma dinámica (Vite)
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 
+// TODO Poder cambiar la imagen de la tienda en caso de no haber subido ninguna (Se colocó la imagen por defecto), notificar al usuario de que la tienda está creada pero no tiene datos , habría que añadir los productos
 export const StorePanelPage = () => {
     // 💡 1. RUTAS Y ESTADOS
     const [, params] = useRoute("/panel-tienda/:id");

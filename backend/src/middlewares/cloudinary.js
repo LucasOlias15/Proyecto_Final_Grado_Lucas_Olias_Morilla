@@ -1,5 +1,10 @@
 import { v2 as cloudinary } from 'cloudinary';
-import { CloudinaryStorage } from 'multer-storage-cloudinary';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url); 
+
+// 1. En esta versión, toda la librería ES la herramienta directamente
+const cloudinaryStorage = require('multer-storage-cloudinary'); 
+
 import multer from 'multer';
 import dotenv from 'dotenv';
 
@@ -12,15 +17,12 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// 2. Configuramos "el almacén" (Storage)
-// Aquí le decimos a Multer que no guarde los archivos en tu disco duro, sino en Cloudinary
-const storage = new CloudinaryStorage({
+// 2. ¡Fíjate aquí! Quitamos el "new" y sacamos las propiedades fuera de "params"
+const storage = cloudinaryStorage({
   cloudinary: cloudinary,
-  params: {
-    folder: 'localmarkt_images', // Cloudinary creará esta carpeta automáticamente
-    allowed_formats: ['jpg', 'png', 'jpeg', 'webp'], // Solo permitimos imágenes
-    transformation: [{ width: 800, height: 800, crop: 'limit' }] // Comprime y limita el tamaño para que la web no vaya lenta
-  }
+  folder: 'localmarkt_images', // Cloudinary creará esta carpeta automáticamente
+  allowedFormats: ['jpg', 'png', 'jpeg', 'webp'], // Solo permitimos imágenes
+  transformation: [{ width: 800, height: 800, crop: 'limit' }] // Comprime y limita el tamaño
 });
 
 // 3. Creamos el "middleware" que usaremos en nuestras rutas
