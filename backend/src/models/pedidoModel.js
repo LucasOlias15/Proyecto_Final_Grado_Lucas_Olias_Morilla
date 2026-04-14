@@ -84,21 +84,27 @@ async function crearNuevoPedido (id_usuario, id_comercio, total, productos) {
 
 // Obtener los pedidos de una tienda
 async function obtenerPedidosPorComercio(id_comercio) {
-    const [result] = await pool.query(
-        `SELECT 
-            p.id_pedido, p.fecha, p.total, p.estado, 
-            u.nombre AS nombre_cliente, u.email AS email_cliente,
-            prod.nombre AS nombre_producto, 
-            dp.cantidad, dp.precio_unitario
-        FROM pedido p
-        JOIN detalle_pedido dp ON p.id_pedido = dp.id_pedido
-        JOIN usuario u ON p.id_usuario = u.id
-        JOIN producto prod ON dp.id_producto = prod.id_producto
-        WHERE p.id_comercio = ?
-        ORDER BY p.fecha DESC;`,
-        [id_comercio]
-    );
-    return result;
+    try {
+        const [result] = await pool.query(
+            `SELECT 
+                p.id_pedido, p.fecha, p.total, p.estado, 
+                u.nombre AS nombre_cliente, u.email AS email_cliente,
+                prod.nombre AS nombre_producto, 
+                dp.cantidad, dp.precio_unitario
+            FROM pedido p
+            JOIN detalle_pedido dp ON p.id_pedido = dp.id_pedido
+            -- 👇 AQUÍ ESTABA EL FALLO: Cambiamos u.id por u.id_usuario
+            JOIN usuario u ON p.id_usuario = u.id_usuario 
+            JOIN producto prod ON dp.id_producto = prod.id_producto
+            WHERE p.id_comercio = ?
+            ORDER BY p.fecha DESC;`,
+            [id_comercio]
+        );
+        return result;
+    } catch (error) {
+        console.error('❌ Error SQL en obtenerPedidosPorComercio:', error.message);
+        throw error;
+    }
 }
 
 // Actualizar estado

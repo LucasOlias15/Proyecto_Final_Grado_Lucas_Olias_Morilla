@@ -4,6 +4,10 @@ import { PanelTopOpen, Search, ShoppingBasket, Store, Heart, SquareCheckBig, Tra
 import { useCartStore } from '../store/useCartStore';
 import { motion } from "framer-motion";
 
+// TODO Gestionar Stock de alguna forma para el producto específico.
+
+// TODO Hide de tienda si no tiene todavía ningún producto  
+
 export const ExplorePage = () => {
     
     // --- Datos ---
