@@ -14,7 +14,6 @@ import { useRoute, Link } from "wouter";
 // URL de la API de forma dinamica
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 
-// TODO Poder cambiar la imagen de la tienda en caso de no haber subido ninguna (Se colocó la imagen por defecto), notificar al usuario de que la tienda está creada pero no tiene datos , habría que añadir los productos
 const imageDefault =
   "https://res.cloudinary.com/defaik2fl/image/upload/v1776084820/Gemini_Generated_Image_cswtzlcswtzlcswt_fn6vew.png";
 
@@ -409,10 +408,10 @@ export const StorePanelPage = () => {
           <div className="flex flex-col gap-4">
             <div className="bg-base-100 p-6 rounded-4xl shadow-xl border border-base-content/10 h-fit">
               <img
-  src={store?.imagen} 
-  className="w-full h-40 object-cover rounded-2xl mb-4"
-  alt="Tienda"
-/>
+                src={store?.imagen}
+                className="w-full h-40 object-cover rounded-2xl mb-4"
+                alt="Tienda"
+              />
               <h2 className="text-xl font-bold mb-2 text-base-content">
                 {store?.nombre}
               </h2>

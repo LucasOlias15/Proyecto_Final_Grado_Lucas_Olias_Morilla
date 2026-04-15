@@ -2,9 +2,9 @@ import { createComercio, getComercioById, getAllComercios, updateComercioImage, 
 
 export const registrarComercio = async (req, res) => {
     try {
-        const { nombre, descripcion, categoria, contacto, direccion } = req.body;
+        const { nombre, descripcion, categoria, contacto, direccion, latitud, longitud } = req.body;
         const idUsuario = req.user.id; 
-        const comercioId = await createComercio(nombre, idUsuario, descripcion, categoria, contacto, direccion, null, null, null);
+        const comercioId = await createComercio(nombre, idUsuario, descripcion, categoria, contacto, direccion, latitud, longitud, null);
         return res.status(201).json({ 
             id: comercioId,
             message: "Comercio registrado exitosamente" 

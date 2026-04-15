@@ -23,10 +23,11 @@ import {
   descripcionRegEx,
 } from "../../../common/validaciones.js";
 import { useState } from "react";
+import { LocationPicker } from "../components/LocationPicker";
 import { Link, useLocation } from "wouter";
 
 export const RegisterPage = () => {
-  // 1. ESTADOS DEL FORMULARIO (Todos inicializados vacíos)
+  // 1. ESTADOS DEL FORMULARIO
   const [tipoCuenta, setTipoCuenta] = useState("cliente");
 
   const [nombreUsuario, setNombreUsuario] = useState("");
@@ -39,18 +40,20 @@ export const RegisterPage = () => {
   const [categoria, setCategoria] = useState("");
   const [contacto, setContacto] = useState("");
   const [direccion, setDireccion] = useState("");
-  const [imagen, setImagen] = useState(null); // null para archivos
+  const [imagen, setImagen] = useState(null); 
+  
+  // 📍 Estado que guarda las coordenadas que nos pasa el LocationPicker
+  const [coordenadasTienda, setCoordenadasTienda] = useState(null);
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
   const [, setLocation] = useLocation();
 
-  // 2. FUNCIÓN DE REGISTRO (Lista para tu lógica Fetch)
+  // 2. FUNCIÓN DE REGISTRO
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Verificamos los campos comunes a dueños y clientes que vienen en el body
+    // Verificamos los campos comunes
     if (!nombreUsuarioRegEx.test(nombreUsuario)) {
       setError("El nombre debe tener entre 3 y 80 caracteres (solo letras).");
       return;
@@ -62,7 +65,7 @@ export const RegisterPage = () => {
       return;
     }
 
-    //Verificamos los campos específicos de los dueños
+    // Verificamos los campos específicos de los dueños
     if (tipoCuenta === "dueño") {
       if (!telefonoRegEx.test(contacto)) {
         setError("Introduce un número de teléfono válido (9 dígitos).");
@@ -76,24 +79,34 @@ export const RegisterPage = () => {
       } else if (!descripcionRegEx.test(descripcion)) {
         setError("La descripción debe tener entre 10 y 500 caracteres.");
         return;
+      } else if (!coordenadasTienda) {
+        // 🛑 Validación nueva: Obligamos a usar el mapa
+        setError("Por favor, usa el mapa para ubicar exactamente tu comercio.");
+        return;
       }
     }
 
     setLoading(true);
     setError("");
 
-    //FormData para enviar la imagen y los datos en un solo paquete
+    // FormData para enviar los datos y la imagen
     const paqueteDeDatos = new FormData();
     paqueteDeDatos.append("email", email);
     paqueteDeDatos.append("clave", password);
     paqueteDeDatos.append("nombreUsuario", nombreUsuario);
     paqueteDeDatos.append("rol", tipoCuenta);
-    paqueteDeDatos.append("nombreComercio", nombreComercio);
-    paqueteDeDatos.append("descripcion", descripcion);
-    paqueteDeDatos.append("categoria", categoria);
-    paqueteDeDatos.append("contacto", contacto);
-    paqueteDeDatos.append("direccion", direccion);
-    paqueteDeDatos.append("ubicacion", "");
+
+    // Solo añadimos los datos del comercio si es dueño
+    if (tipoCuenta === "dueño") {
+        paqueteDeDatos.append("nombreComercio", nombreComercio);
+        paqueteDeDatos.append("descripcion", descripcion);
+        paqueteDeDatos.append("categoria", categoria);
+        paqueteDeDatos.append("contacto", contacto);
+        paqueteDeDatos.append("direccion", direccion);
+        // 🗺️ Añadimos las coordenadas reales sacadas del mapa
+        paqueteDeDatos.append("latitud", coordenadasTienda.lat);
+        paqueteDeDatos.append("longitud", coordenadasTienda.lng);
+    }
 
     if (imagen) {
       paqueteDeDatos.append("imagen", imagen);
@@ -110,7 +123,7 @@ export const RegisterPage = () => {
         setError(data.error);
         return;
       }
-      setLocation("/");
+      setLocation("/login");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -126,11 +139,9 @@ export const RegisterPage = () => {
         transition={{ duration: 0.5 }}
         className="w-full max-w-5xl bg-base-100 rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col md:flex-row border border-white/20 z-10"
       >
-        {/* LADO IZQUIERDO: Branding                   */}
+        {/* LADO IZQUIERDO: Branding */}
         <div className="md:w-5/12 bg-jungle_teal-300 relative overflow-hidden text-white border-r border-white/10 shadow-inner">
-          {/* CONTENEDOR STICKY */}
           <div className="sticky top-0 p-10 flex flex-col min-h-screen md:h-screen">
-            {/* IMAGEN DEL LOGO (Intocable) */}
             <div className="absolute -top-18 -left-34 w-110 h-110 opacity-95 pointer-events-none drop-shadow-2xl">
               <img
                 src="/logo.png"
@@ -139,7 +150,6 @@ export const RegisterPage = () => {
               />
             </div>
 
-            {/* TEXTOS Y BADGE: Todo agrupado y pegado abajo */}
             <div
               className={`relative z-10 text-left pb-4 ${tipoCuenta === "dueño" ? "mt-145" : "mt-auto"}`}
             >
@@ -188,7 +198,6 @@ export const RegisterPage = () => {
                 </div>
               )}
 
-              {/* BADGE INFERIOR: Ahora es parte del bloque inferior, con un margen arriba (mt-8) para separarlo del texto */}
               <div className="flex items-center gap-3 text-sm font-bold bg-white/10 w-fit px-4 py-3 rounded-xl backdrop-blur-sm border border-white/20 shadow-lg mt-8">
                 <MapPin size={20} className="text-yellow-400" />
                 Más de 500 comercios ya están aquí
@@ -198,7 +207,7 @@ export const RegisterPage = () => {
         </div>
 
         {/* LADO DERECHO: Formulario */}
-        <div className="md:w-7/12 p-8 sm:p-12 lg:p-16 flex flex-col justify-center bg-base-100 relative">
+        <div className="md:w-7/12 p-8 sm:p-12 lg:p-16 flex flex-col justify-center bg-base-100 relative overflow-y-auto">
           <div className="mb-8">
             <h1 className="text-4xl font-black text-base-content mb-3 leading-tight tracking-tight">
               Crear cuenta
@@ -208,7 +217,7 @@ export const RegisterPage = () => {
             </p>
           </div>
 
-          {/* SELECTOR DE TIPO DE CUENTA CON TOGGLE DINÁMICO */}
+          {/* SELECTOR DE TIPO DE CUENTA */}
           <div className="flex bg-base-200 p-1.5 rounded-2xl mb-8 border border-base-300 shadow-sm">
             <button
               type="button"
@@ -236,6 +245,7 @@ export const RegisterPage = () => {
 
           {/* FORMULARIO */}
           <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+            
             {/* Campo común: Nombre Usuario */}
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-bold uppercase tracking-widest text-base-content/70 ml-1">
@@ -261,60 +271,57 @@ export const RegisterPage = () => {
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
-                className="flex flex-col gap-6 overflow-hidden"
+                className="flex flex-col gap-6 overflow-visible"
               >
                 <div className="divider my-0 text-xs font-bold uppercase text-base-content/30">
                   Datos de tu tienda
                 </div>
 
-                {/* Nombre del comercio */}
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold uppercase tracking-widest text-base-content/70 ml-1">
-                    Nombre de la Tienda
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-base-content/40">
-                      <Store size={18} />
+                {/* Nombre y Categoría */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-bold uppercase tracking-widest text-base-content/70 ml-1">
+                      Nombre de la Tienda
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-base-content/40">
+                        <Store size={18} />
+                      </div>
+                      <input
+                        type="text"
+                        placeholder="Ej. Frutería Loli"
+                        value={nombreComercio}
+                        onChange={(e) => setNombreComercio(e.target.value)}
+                        className="w-full pl-12 pr-4 py-4 rounded-xl bg-base-200/50 border-2 border-transparent text-base text-base-content outline-none focus:bg-base-100 focus:border-jungle_teal transition-all"
+                        required={tipoCuenta === "dueño"}
+                      />
                     </div>
-                    <input
-                      type="text"
-                      placeholder="Ej. Frutería Loli"
-                      value={nombreComercio}
-                      onChange={(e) => setNombreComercio(e.target.value)}
-                      className="w-full pl-12 pr-4 py-4 rounded-xl bg-base-200/50 border-2 border-transparent text-base text-base-content outline-none focus:bg-base-100 focus:border-jungle_teal focus:ring-2 focus:ring-jungle_teal/10 transition-all"
-                      required={tipoCuenta === "dueño"}
-                    />
                   </div>
-                </div>
 
-                {/* Categoría */}
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold uppercase tracking-widest text-base-content/70 ml-1">
-                    Categoría
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-base-content/40">
-                      <Tags size={18} />
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-bold uppercase tracking-widest text-base-content/70 ml-1">
+                      Categoría
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-base-content/40">
+                        <Tags size={18} />
+                      </div>
+                      <select
+                        value={categoria}
+                        onChange={(e) => setCategoria(e.target.value)}
+                        className="w-full pl-12 pr-4 py-4 rounded-xl bg-base-200/50 border-2 border-transparent text-base text-base-content outline-none focus:bg-base-100 focus:border-jungle_teal transition-all appearance-none cursor-pointer"
+                        required={tipoCuenta === "dueño"}
+                      >
+                        <option value="" disabled>Seleccionar...</option>
+                        <option value="Frutería">Frutería</option>
+                        <option value="Panadería">Panadería</option>
+                        <option value="Carnicería">Carnicería</option>
+                        <option value="Pastelería">Pastelería</option>
+                        <option value="Bio">Productos Bio/Eco</option>
+                        <option value="Artesanía y regalos">Artesanía y Regalos</option>
+                        <option value="Textiles y moda">Textiles y Moda</option>
+                      </select>
                     </div>
-                    <select
-                      value={categoria}
-                      onChange={(e) => setCategoria(e.target.value)}
-                      className="w-full pl-12 pr-4 py-4 rounded-xl bg-base-200/50 border-2 border-transparent text-base text-base-content outline-none focus:bg-base-100 focus:border-jungle_teal focus:ring-2 focus:ring-jungle_teal/10 transition-all appearance-none cursor-pointer"
-                      required={tipoCuenta === "dueño"}
-                    >
-                      <option value="" disabled>
-                        Selecciona una categoría
-                      </option>
-                      <option value="Frutería">Frutería</option>
-                      <option value="Panadería">Panadería</option>
-                      <option value="Carnicería">Carnicería</option>
-                      <option value="Pastelería">Pastelería</option>
-                      <option value="Bio">Productos Bio/Eco</option>
-                      <option value="Artesanía y regalos">
-                        Artesanía y Regalos
-                      </option>
-                      <option value="Textiles y moda">Textiles y Moda</option>
-                    </select>
                   </div>
                 </div>
 
@@ -331,13 +338,13 @@ export const RegisterPage = () => {
                       placeholder="Cuéntanos sobre tu comercio..."
                       value={descripcion}
                       onChange={(e) => setDescripcion(e.target.value)}
-                      className="w-full pl-12 pr-4 py-4 rounded-xl bg-base-200/50 border-2 border-transparent text-base text-base-content outline-none focus:bg-base-100 focus:border-jungle_teal focus:ring-2 focus:ring-jungle_teal/10 transition-all min-h-25 resize-none"
+                      className="w-full pl-12 pr-4 py-4 rounded-xl bg-base-200/50 border-2 border-transparent text-base text-base-content outline-none focus:bg-base-100 focus:border-jungle_teal transition-all min-h-25 resize-none"
                       required={tipoCuenta === "dueño"}
                     ></textarea>
                   </div>
                 </div>
 
-                {/* Contacto y Dirección (Dos columnas) */}
+                {/* Contacto y Dirección (Texto) */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-bold uppercase tracking-widest text-base-content/70 ml-1">
@@ -359,7 +366,7 @@ export const RegisterPage = () => {
                   </div>
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-bold uppercase tracking-widest text-base-content/70 ml-1">
-                      Dirección
+                      Dirección Completa
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-base-content/40">
@@ -367,7 +374,7 @@ export const RegisterPage = () => {
                       </div>
                       <input
                         type="text"
-                        placeholder="Calle Principal, 1"
+                        placeholder="Calle Principal, 1, Puerta 2"
                         value={direccion}
                         onChange={(e) => setDireccion(e.target.value)}
                         className="w-full pl-12 pr-4 py-4 rounded-xl bg-base-200/50 border-2 border-transparent text-base text-base-content outline-none focus:bg-base-100 focus:border-jungle_teal transition-all"
@@ -375,6 +382,13 @@ export const RegisterPage = () => {
                       />
                     </div>
                   </div>
+                </div>
+
+                {/* 🗺️ INTEGRACIÓN DEL COMPONENTE DEL MAPA */}
+                <div className="mt-2">
+                  <LocationPicker 
+                    onLocationSelect={(coords) => setCoordenadasTienda(coords)} 
+                  />
                 </div>
 
                 {/* Logo / Imagen */}
@@ -402,41 +416,43 @@ export const RegisterPage = () => {
             )}
 
             {/* CAMPOS COMUNES (Email y Clave) */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold uppercase tracking-widest text-base-content/70 ml-1">
-                Correo Electrónico
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-base-content/40">
-                  <Mail size={18} />
+            <div className="grid grid-cols-1 gap-6">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold uppercase tracking-widest text-base-content/70 ml-1">
+                  Correo Electrónico
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-base-content/40">
+                    <Mail size={18} />
+                  </div>
+                  <input
+                    type="email"
+                    placeholder="tu@email.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full pl-12 pr-4 py-4 rounded-xl bg-base-200/50 border-2 border-transparent text-base text-base-content outline-none focus:bg-base-100 focus:border-jungle_teal transition-all"
+                    required
+                  />
                 </div>
-                <input
-                  type="email"
-                  placeholder="tu@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 rounded-xl bg-base-200/50 border-2 border-transparent text-base text-base-content outline-none focus:bg-base-100 focus:border-jungle_teal focus:ring-2 focus:ring-jungle_teal/10 transition-all"
-                  required
-                />
               </div>
-            </div>
 
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold uppercase tracking-widest text-base-content/70 ml-1">
-                Contraseña
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-base-content/40">
-                  <Lock size={18} />
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold uppercase tracking-widest text-base-content/70 ml-1">
+                  Contraseña
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-base-content/40">
+                    <Lock size={18} />
+                  </div>
+                  <input
+                    type="password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full pl-12 pr-4 py-4 rounded-xl bg-base-200/50 border-2 border-transparent text-base text-base-content outline-none focus:bg-base-100 focus:border-jungle_teal transition-all"
+                    required
+                  />
                 </div>
-                <input
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 rounded-xl bg-base-200/50 border-2 border-transparent text-base text-base-content outline-none focus:bg-base-100 focus:border-jungle_teal focus:ring-2 focus:ring-jungle_teal/10 transition-all"
-                  required
-                />
               </div>
             </div>
 
@@ -459,7 +475,7 @@ export const RegisterPage = () => {
                 <span className="loading loading-spinner"></span>
               ) : (
                 <>
-                    Registrarme <ArrowRight size={20} className="ml-1" />
+                  Registrarme <ArrowRight size={20} className="ml-1" />
                 </>
               )}
             </button>

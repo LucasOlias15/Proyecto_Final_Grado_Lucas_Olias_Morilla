@@ -18,8 +18,7 @@ const crearTablas = async () => {
         nombre VARCHAR(250) NOT NULL,
         email VARCHAR(250) NOT NULL UNIQUE,
         contraseña VARCHAR(250) NOT NULL,
-        rol VARCHAR(50) DEFAULT 'cliente',
-        ubicacion_aproximada VARCHAR(250) NOT NULL
+        rol VARCHAR(50) DEFAULT 'cliente'
       )
     `);
 

@@ -9,7 +9,7 @@ async function createComercio(nombre, idUsuario, descripcion, categoria, contact
         );
         return result.insertId;
     } catch (error) {
-        console.error('❌ Error SQL en createComercio:', error.message);
+        console.error(' Error SQL en createComercio:', error.message);
         throw error;
     }
 }
@@ -22,7 +22,7 @@ async function getComercioById(idComercio) {
         // Devolvemos rows[0] para que React reciba un OBJETO y no un Array
         return rows[0]; 
     } catch (error) {
-        console.error('❌ Error SQL en getComercioById:', error.message);
+        console.error(' Error SQL en getComercioById:', error.message);
         throw error;
     }
 }
@@ -32,7 +32,7 @@ async function getAllComercios() {
         const [rows] = await pool.query('SELECT * FROM comercio');
         return rows;
     } catch (error) {
-        console.error('❌ Error SQL en getAllComercios:', error.message);
+        console.error(' Error SQL en getAllComercios:', error.message);
         throw error;
     }
 }
@@ -42,7 +42,7 @@ async function getComercioByUsuarioId(idUsuario) {
         const [rows] = await pool.query('SELECT * FROM comercio WHERE id_usuario = ?', [idUsuario]);
         return rows.length > 0 ? rows[0] : null;
     } catch (error) {
-        console.error('❌ Error SQL en getComercioByUsuarioId:', error.message);
+        console.error(' Error SQL en getComercioByUsuarioId:', error.message);
         throw error;
     }
 }
@@ -53,7 +53,7 @@ async function updateComercioImage(nuevaImagen, idComercio){
         const [result] = await pool.query('UPDATE comercio SET imagen = ? WHERE id_comercio = ?', [nuevaImagen, idComercio]);
         return result.affectedRows > 0;
     } catch (error) {
-        console.error('❌ Error SQL en updateComercioImage:', error.message);
+        console.error(' Error SQL en updateComercioImage:', error.message);
         throw error;
     }
 }

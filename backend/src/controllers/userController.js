@@ -51,9 +51,9 @@ export const registrarUsuario = async (req, res) => {
         // Si el usuario no existe, se crea uno nuevo
         let userId;
         if (rol==="cliente"){
-            userId = await createUser(nombreUsuario, email, hashedClave, ubicacion, rol);
+            userId = await createUser(nombreUsuario, email, hashedClave, rol);
         }else if (rol==="dueño"){
-            userId = await createUser(nombreUsuario, email, hashedClave, ubicacion, rol);
+            userId = await createUser(nombreUsuario, email, hashedClave, rol);
             await createComercio(nombreComercio, userId, descripcion, categoria, contacto, direccion, latitud, longitud, fotoTienda);
         }
         
