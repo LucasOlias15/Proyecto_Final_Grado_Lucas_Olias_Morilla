@@ -6,53 +6,58 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
 export const registrarUsuario = async (req, res) => {
-
     try {
-
-    let fotoTienda = "";
-        if (req.file){
-            fotoTienda = req.file.path;
-        }else{
+        // 🐛 ¡EL BUG ESTABA AQUÍ! Solucionado igual que ayer en comercioController
+        let fotoTienda = "";
+        if (req.file) {
+            // Buscamos en path o en secure_url dependiendo de la respuesta de Cloudinary
+            fotoTienda = req.file.path || req.file.secure_url;
+        } else {
             fotoTienda = "https://res.cloudinary.com/defaik2fl/image/upload/v1776084820/Gemini_Generated_Image_cswtzlcswtzlcswt_fn6vew.png";
         }
 
-        const { nombreUsuario, email, clave, ubicacion,rol,nombreComercio,descripcion, categoria, contacto, direccion, latitud, longitud } = req.body;
-       // Verificamos los campos comunes a dueños y clientes que vienen en el body
-       if (!nombreUsuarioRegEx.test(nombreUsuario)){
-            return res.status(400).json({ error: "Formato de nombre de usuario inválido. " });
-       } else if (!emailRegEx.test(email)){
-            return res.status(400).json({ error: "Formato de email inválido. " });      
-       }else if (!claveRegEx.test(clave)){
-            return res.status(400).json({ error: "Formato de contraseña inválido. " });      
-       }
+        // 🧹 LIMPIEZA: Quitamos 'ubicacion' de la destructuración (ya no existe en la BD)
+        const { nombreUsuario, email, clave, rol, nombreComercio, descripcion, categoria, contacto, direccion, latitud, longitud } = req.body;
        
-        //Verificamos los campos específicos de los dueños
-        if (rol==="dueño"){
-            if (!telefonoRegEx.test(contacto)){
-                return res.status(400).json({ error: "Formato de número de teléfono inválido. " });      
-            }else if (!nombreComercioRegEx.test(nombreComercio)){
-                    return res.status(400).json({ error: "Formato de nombre de comercio inválido. " });      
-            }else if (!direccionRegEx.test(direccion)){
-                    return res.status(400).json({ error: "Formato de direccion inválido. " });      
-            }else if (!descripcionRegEx.test(descripcion)){
-                    return res.status(400).json({ error: "Formato de descripcion inválido. " });      
-            }
+        // Verificamos los campos comunes a dueños y clientes que vienen en el body
+        if (!nombreUsuarioRegEx.test(nombreUsuario)){
+            return res.status(400).json({ error: "Formato de nombre de usuario inválido. " });
+        } else if (!emailRegEx.test(email)){
+            return res.status(400).json({ error: "Formato de email inválido. " });      
+        } else if (!claveRegEx.test(clave)){
+            return res.status(400).json({ error: "Formato de contraseña inválido. " });      
         }
        
+        // Verificamos los campos específicos de los dueños
+        if (rol === "dueño") {
+            if (!telefonoRegEx.test(contacto)){
+                return res.status(400).json({ error: "Formato de número de teléfono inválido. " });      
+            } else if (!nombreComercioRegEx.test(nombreComercio)){
+                return res.status(400).json({ error: "Formato de nombre de comercio inválido. " });      
+            } else if (!direccionRegEx.test(direccion)){
+                return res.status(400).json({ error: "Formato de direccion inválido. " });      
+            } else if (!descripcionRegEx.test(descripcion)){
+                return res.status(400).json({ error: "Formato de descripcion inválido. " });      
+            }
+        }
        
         // Verificar si el usuario ya existe
         const existingUser = await getUserByEmail(email);
         if (existingUser) {
-            //Se envia codigo de error en caso de que el usuario ya exista en la base de datos
+            // Se envia codigo de error en caso de que el usuario ya exista en la base de datos
             return res.status(409).json({ error: "El usuario ya existe." });
         }
+
         // Se encripta la clave si el usuario no existe 
         const hashedClave = await bcrypt.hash(clave, 10);
+        
         // Si el usuario no existe, se crea uno nuevo
         let userId;
-        if (rol==="cliente"){
+        if (rol === "cliente") {
+            // Ya no le pasamos ubicación
             userId = await createUser(nombreUsuario, email, hashedClave, rol);
-        }else if (rol==="dueño"){
+        } else if (rol === "dueño") {
+            // Ya no le pasamos ubicación al usuario, pero SÍ guardamos las coordenadas en el comercio
             userId = await createUser(nombreUsuario, email, hashedClave, rol);
             await createComercio(nombreComercio, userId, descripcion, categoria, contacto, direccion, latitud, longitud, fotoTienda);
         }
@@ -60,11 +65,11 @@ export const registrarUsuario = async (req, res) => {
         // Se envia una respuesta exitosa con el ID del nuevo usuario
         return res.status(201).json({ 
             id: userId,
-            message: "Usuario OK" });
-    }  catch (error) {
-        // Esta línea es magia pura para depurar:
+            message: "Usuario OK" 
+        });
+
+    } catch (error) {
         console.error("🔥 ERROR REAL AL CREAR COMERCIO:", error); 
-        
         return res.status(500).json({ error: "Error al registrar el usuario" });
     }
 };
@@ -80,8 +85,7 @@ export const loginUsuario = async (req, res) => {
             return res.status(404).json({ error: "Usuario no encontrado" });
         }
         
-        //Siguiente paso comprobar las claves la encriptada y la que se recibe en el login
-        // MODIFICADO: Ahora el modelo devuelve la columna 'contraseña'
+        // Siguiente paso comprobar las claves la encriptada y la que se recibe en el login
         const comprobarClave = await bcrypt.compare(clave, user.contraseña);
 
         if (!comprobarClave) {
@@ -104,17 +108,15 @@ export const loginUsuario = async (req, res) => {
             { 
                 id: user.id_usuario, 
                 email: user.email,
-                rol: rolAsignado,         // Guardamos su rol en el token
-                id_comercio: comercioId   // Guardamos su tienda (o null) en el token
+                rol: rolAsignado,         
+                id_comercio: comercioId   
             },
             process.env.JWT_SECRET,
-                        //TODO : El token expira en 30 días, pero podríamos hacer que expire antes para mayor seguridad
-
             { expiresIn: '30d' }
         );
 
         // Enviamos la respuesta al cliente con el token y algunos datos básicos del usuario
-       return res.status(200).json({
+        return res.status(200).json({
             message: "Login exitoso",
             token: token,
             user: { 
@@ -126,31 +128,25 @@ export const loginUsuario = async (req, res) => {
         });
         
     } catch (error) {
-        console.error("Error en login:", error); // Útil para depurar
+        console.error("Error en login:", error); 
         res.status(500).json({ error: "Error en el login" });
     }
 };
 
 export const obtenerPerfil = async (req, res) => {
     try {
-        // El ID viene del token, que el middleware dejó en req.user
         const userId = req.user.id;
-
-        // Aquí deberíamos llamar a una función del modelo para buscar al usuario por ID
-        // Supongamos que se llama getUserById(userId)
         const user = await getUserById(userId);
 
         if (!user) {
             return res.status(404).json({ error: "Usuario no encontrado" });
         }
 
-        // Devolvemos los datos (sin la clave)
-        // MODIFICADO: 'ubicacion' -> 'ubicacion_aproximada'
+        // 🧹 LIMPIEZA: Quitamos la ubicación de la respuesta
         res.json({
             nombre: user.nombre,
             email: user.email,
-            ubicacion: user.ubicacion_aproximada,
-            rol: user.rol // Añadimos el rol, que es útil para el Front
+            rol: user.rol 
         });
     } catch (error) {
         res.status(500).json({ error: "Error al obtener el perfil" });
@@ -161,7 +157,9 @@ export const obtenerPerfil = async (req, res) => {
 export const actualizarPerfil = async (req, res) => {
     try {
         const userId = req.user.id;
-        const { nombre, email, clave, nuevaClave, ubicacion } = req.body;
+        
+        // 🧹 LIMPIEZA: Quitamos 'ubicacion' de la destructuración
+        const { nombre, email, clave, nuevaClave } = req.body;
 
         // 1. Obtener datos actuales del usuario
         const user = await getUserById(userId);
@@ -174,7 +172,6 @@ export const actualizarPerfil = async (req, res) => {
         }
 
         // 3. VALIDACIÓN: ¿El nuevo email está libre?
-        // Solo comprobamos si el email que envía es distinto al que ya tiene
         if (email && email !== user.email) {
             const emailOcupado = await getUserByEmail(email);
             if (emailOcupado) {
@@ -186,7 +183,8 @@ export const actualizarPerfil = async (req, res) => {
         const campos = {};
         if (nombre) campos.nombre = nombre;
         if (email) campos.email = email;
-        if (ubicacion) campos.ubicacion_aproximada = ubicacion;
+        
+        // 🧹 LIMPIEZA: Eliminada la línea que guardaba la ubicación
 
         if (nuevaClave) {
             campos.contraseña = await bcrypt.hash(nuevaClave, 10);
@@ -199,7 +197,6 @@ export const actualizarPerfil = async (req, res) => {
         // 5. EJECUTAR Y RESPONDER CON DATOS NUEVOS
         await updateUserInfo(userId, campos);
 
-        // Buscamos los datos actualizados para que el Front los guarde en el localStorage
         const userActualizado = await getUserById(userId);
 
         res.json({ 
@@ -208,8 +205,7 @@ export const actualizarPerfil = async (req, res) => {
                 id: userActualizado.id_usuario,
                 nombre: userActualizado.nombre,
                 email: userActualizado.email,
-                ubicacion: userActualizado.ubicacion_aproximada,
-                rol: req.user.rol // El rol lo mantenemos del token original
+                rol: req.user.rol 
             }
         });
 
