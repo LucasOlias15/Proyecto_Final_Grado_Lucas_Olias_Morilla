@@ -24,7 +24,7 @@ export const ExplorePage = () => {
     // --- UI y Usuario ---
     const [toast, setToast] = useState(null);
     
-    // 👇 1. ESTADOS SEPARADOS PARA EVITAR CONFLICTOS DE IDs 👇
+    // --- Favoritos ---
     const [favProductos, setFavProductos] = useState([]);
     const [favComercios, setFavComercios] = useState([]);
 

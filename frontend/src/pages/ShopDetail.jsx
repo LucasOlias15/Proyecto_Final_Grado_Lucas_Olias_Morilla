@@ -1,65 +1,93 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { useRoute } from 'wouter';
-import { ProductCard } from '../components/ProductCard';
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { useRoute } from "wouter";
+import { ProductCard } from "../components/ProductCard";
 
-//TODO Añadir funcionalidad de añadir a carrito y cambiar botón de + para hacer toggle de favorito
+//TODO Añadir funcionalidad de añadir tienda a favorito , con icono pertinente para añadir la tienda a favoritos
 
 export const ShopDetail = () => {
   const [, params] = useRoute("/tienda/:id");
 
+  // Rescatamos al usuario de forma segura
+  const userString = localStorage.getItem("user");
+  const usuario = userString ? JSON.parse(userString) : null;
+
   // 1. ESTADOS
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [shopInfo, setShopInfo] = useState(null); 
+  const [shopInfo, setShopInfo] = useState(null);
   const [errorTienda, setErrorTienda] = useState(false);
+
+  // El estado para guardar la lista de IDs favoritos de este usuario
+  const [favProductos, setFavProductos] = useState([]);
 
   // 2. LÓGICA (PETICIÓN AL BACKEND)
   useEffect(() => {
     const fetchData = async () => {
-     try {
-    setLoading(true);
-    setErrorTienda(false); // Reiniciamos el error cada vez que intentamos cargar una tienda nueva
+      try {
+        setLoading(true);
+        setErrorTienda(false);
 
-    const [resProductos, resComercio] = await Promise.all([
-      fetch(`http://localhost:3000/api/productos/comercio/${params.id}`),
-      fetch(`http://localhost:3000/api/comercios/${params.id}`)
-    ]);
+        // 1. Pedimos tienda y productos (para todos)
+        const [resProductos, resComercio] = await Promise.all([
+          fetch(`http://localhost:3000/api/productos/comercio/${params.id}`),
+          fetch(`http://localhost:3000/api/comercios/${params.id}`),
+        ]);
 
-    // Si la respuesta del comercio no es OK (por ejemplo, un 404)
-    if (!resComercio.ok) {
-        setErrorTienda(true); // Activamos el estado de error para mostrar la página 404 
-        return; 
-    }
+        if (!resComercio.ok) {
+          setErrorTienda(true);
+          return;
+        }
 
-    const dataProductos = await resProductos.json();
-    const dataComercio = await resComercio.json();
+        const dataProductos = await resProductos.json();
+        const dataComercio = await resComercio.json();
+
+        // 2. Pedimos favoritos (SOLO si hay usuario)
+        if (usuario) {
+          const userId = usuario.id || usuario.id_usuario;
+          const resFavs = await fetch(
+            `http://localhost:3000/api/favoritos/${userId}`,
+          );
+          if (resFavs.ok) {
+            const dataFavs = await resFavs.json();
+            // Filtramos solo los IDs de los productos favoritos
+            setFavProductos(
+              dataFavs
+                .filter((fav) => fav.id_producto)
+                .map((fav) => fav.id_producto),
+            );
+          }
+        }
 
         // LÓGICA: Guardamos los datos de la tienda en el estado
         setShopInfo({
           name: dataComercio.nombre,
-          description: dataComercio.descripcion || "Productos de máxima calidad directos para ti.",
+          description:
+            dataComercio.descripcion ||
+            "Productos de máxima calidad directos para ti.",
           address: dataComercio.direccion || "Dirección no disponible",
           rating: 4.8,
-          categories: dataComercio.categoria ? [dataComercio.categoria] : ["General"],
-          image: dataComercio.imagen // <--- ¡No olvides añadir esta línea! 🖼️
+          categories: dataComercio.categoria
+            ? [dataComercio.categoria]
+            : ["General"],
+          image: dataComercio.imagen,
         });
 
         // LÓGICA: Guardamos los productos en el estado
-        const productosFormateados = dataProductos.map(p => ({
+        const productosFormateados = dataProductos.map((p) => ({
           id: p.id_producto,
           name: p.nombre,
           price: p.precio,
           description: p.descripcion,
-          img: p.imagen
+          img: p.imagen,
         }));
 
         setProducts(productosFormateados);
       } catch (error) {
-    setErrorTienda(true);
-  } finally {
-    setLoading(false);
-  }
+        setErrorTienda(true);
+      } finally {
+        setLoading(false);
+      }
     };
 
     if (params?.id) fetchData(); // Solo intentamos cargar si tenemos un ID válido
@@ -68,18 +96,21 @@ export const ShopDetail = () => {
   if (errorTienda) {
     return (
       <div className="min-h-[80vh] flex flex-col items-center justify-center text-center px-4">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }} 
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="max-w-md"
         >
           <h1 className="text-9xl font-black text-base-300">404</h1>
-          <h2 className="text-3xl font-bold mt-4 mb-6 tracking-tighter text-base-content">¡Ups! Esta tienda no existe</h2>
+          <h2 className="text-3xl font-bold mt-4 mb-6 tracking-tighter text-base-content">
+            ¡Ups! Esta tienda no existe
+          </h2>
           <p className="text-base-content/60 mb-8 italic">
-            "Parece que el comercio que buscas ha cerrado sus puertas o el enlace es incorrecto."
+            "Parece que el comercio que buscas ha cerrado sus puertas o el
+            enlace es incorrecto."
           </p>
-          <button 
-            onClick={() => window.location.href = '/'} 
+          <button
+            onClick={() => (window.location.href = "/")}
             className="btn bg-jungle_teal text-white border-none rounded-full px-8 hover:bg-sea_green shadow-lg shadow-jungle_teal/20 transition-all"
           >
             Volver al inicio
@@ -90,9 +121,7 @@ export const ShopDetail = () => {
   }
   // 3. PINTAR EL HTML (RENDER)
   return (
-    
     <div className="w-full min-h-screen bg-base-100 pb-20">
-
       {/* 1. CABECERA CON IMAGEN ÚNICA */}
       <section className="h-[70vh] w-full relative group overflow-hidden">
         <div className="relative w-full h-full">
@@ -124,64 +153,73 @@ export const ShopDetail = () => {
               <div className="h-4 bg-base-300 rounded w-3/4"></div>
             </div>
           </div>
-        ) : shopInfo && (
-          <div className="grid grid-cols-1 lg:grid-cols-10 gap-12 items-start">
+        ) : (
+          shopInfo && (
+            <div className="grid grid-cols-1 lg:grid-cols-10 gap-12 items-start">
+              {/* INFORMACIÓN PRINCIPAL (80%) */}
+              <div className="lg:col-span-8">
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                >
+                  {/* Aquí inyectamos el nombre real */}
+                  <h1 className="text-5xl md:text-7xl font-black text-base-content mb-6 tracking-tighter">
+                    {shopInfo.name}
+                  </h1>
 
-            {/* INFORMACIÓN PRINCIPAL (80%) */}
-            <div className="lg:col-span-8">
-              <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-                {/* Aquí inyectamos el nombre real */}
-                <h1 className="text-5xl md:text-7xl font-black text-base-content mb-6 tracking-tighter">
-                  {shopInfo.name}
-                </h1>
-
-                <div className="flex flex-wrap gap-3 mb-8">
-                  <span className="badge badge-lg bg-jungle_teal dark:bg-jungle_teal-400 text-white border-none py-4 px-6 font-bold shadow-lg shadow-jungle_teal/20">
-                    📍 {shopInfo.address}
-                  </span>
-                  <span className="badge badge-lg bg-yellow-400 text-jungle_teal-200 border-none py-4 px-6 font-bold">
-                    ⭐ {shopInfo.rating} Calificación
-                  </span>
-                </div>
-
-                <p className="text-xl md:text-2xl text-base-content/70 leading-relaxed mb-8 italic max-w-4xl">
-                  "{shopInfo.description}"
-                </p>
-
-                <div className="flex flex-wrap gap-2">
-                  {shopInfo.categories.map(cat => (
-                    <span key={cat} className="px-5 py-2 bg-base-200 dark:bg-base-300 rounded-xl text-xs font-black uppercase tracking-widest text-base-content/50 border border-base-300">
-                      {cat}
+                  <div className="flex flex-wrap gap-3 mb-8">
+                    <span className="badge badge-lg bg-jungle_teal dark:bg-jungle_teal-400 text-white border-none py-4 px-6 font-bold shadow-lg shadow-jungle_teal/20">
+                      📍 {shopInfo.address}
                     </span>
-                  ))}
-                </div>
-              </motion.div>
-            </div>
+                    <span className="badge badge-lg bg-yellow-400 text-jungle_teal-200 border-none py-4 px-6 font-bold">
+                      ⭐ {shopInfo.rating} Calificación
+                    </span>
+                  </div>
 
-            {/* HORARIO (20%) */}
-            <aside className="lg:col-span-2">
-              <div className="bg-base-200/50 dark:bg-base-200/20 backdrop-blur-md p-6 rounded-[2.5rem] border border-base-300 shadow-xl">
-                <h3 className="font-black text-lg mb-4 text-jungle_teal dark:text-jungle_teal-600 uppercase tracking-tighter">Horarios</h3>
-                <ul className="space-y-3 text-xs font-bold">
-                  <li className="flex justify-between border-b border-base-300 pb-1">
-                    <span className="opacity-40">L-V</span>
-                    <span>09:00 - 20:30</span>
-                  </li>
-                  <li className="flex justify-between border-b border-base-300 pb-1">
-                    <span className="opacity-40">Sáb</span>
-                    <span>10:00 - 14:30</span>
-                  </li>
-                  <li className="flex justify-between text-error italic">
-                    <span>Dom</span>
-                    <span>Cerrado</span>
-                  </li>
-                </ul>
-                <button className="w-full mt-6 py-3 bg-jungle_teal text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-sea_green transition-colors">
-                  Contactar
-                </button>
+                  <p className="text-xl md:text-2xl text-base-content/70 leading-relaxed mb-8 italic max-w-4xl">
+                    "{shopInfo.description}"
+                  </p>
+
+                  <div className="flex flex-wrap gap-2">
+                    {shopInfo.categories.map((cat) => (
+                      <span
+                        key={cat}
+                        className="px-5 py-2 bg-base-200 dark:bg-base-300 rounded-xl text-xs font-black uppercase tracking-widest text-base-content/50 border border-base-300"
+                      >
+                        {cat}
+                      </span>
+                    ))}
+                  </div>
+                </motion.div>
               </div>
-            </aside>
-          </div>
+
+              {/* HORARIO (20%) */}
+              <aside className="lg:col-span-2">
+                <div className="bg-base-200/50 dark:bg-base-200/20 backdrop-blur-md p-6 rounded-[2.5rem] border border-base-300 shadow-xl">
+                  <h3 className="font-black text-lg mb-4 text-jungle_teal dark:text-jungle_teal-600 uppercase tracking-tighter">
+                    Horarios
+                  </h3>
+                  <ul className="space-y-3 text-xs font-bold">
+                    <li className="flex justify-between border-b border-base-300 pb-1">
+                      <span className="opacity-40">L-V</span>
+                      <span>09:00 - 20:30</span>
+                    </li>
+                    <li className="flex justify-between border-b border-base-300 pb-1">
+                      <span className="opacity-40">Sáb</span>
+                      <span>10:00 - 14:30</span>
+                    </li>
+                    <li className="flex justify-between text-error italic">
+                      <span>Dom</span>
+                      <span>Cerrado</span>
+                    </li>
+                  </ul>
+                  <button className="w-full mt-6 py-3 bg-jungle_teal text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-sea_green transition-colors">
+                    Contactar
+                  </button>
+                </div>
+              </aside>
+            </div>
+          )
         )}
       </section>
 
@@ -199,7 +237,9 @@ export const ShopDetail = () => {
         {loading ? (
           <div className="w-full py-20 flex flex-col items-center justify-center text-jungle_teal">
             <span className="loading loading-spinner loading-lg mb-4"></span>
-            <p className="font-bold tracking-widest uppercase text-sm animate-pulse">Cargando productos...</p>
+            <p className="font-bold tracking-widest uppercase text-sm animate-pulse">
+              Cargando productos...
+            </p>
           </div>
         ) : products.length === 0 ? (
           <div className="w-full py-20 text-center opacity-50 font-bold text-xl">
@@ -215,13 +255,16 @@ export const ShopDetail = () => {
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
               >
-                <ProductCard product={product} />
+                {/* 👇 ESTA ES LA LÍNEA MÁGICA 👇 */}
+                <ProductCard
+                  product={product}
+                  isFavorito={favProductos.includes(product.id)}
+                />
               </motion.div>
             ))}
           </div>
         )}
       </section>
-
     </div>
   );
-};  
+};
