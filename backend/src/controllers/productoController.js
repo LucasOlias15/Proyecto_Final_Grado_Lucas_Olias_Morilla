@@ -23,7 +23,7 @@ export const registrarProducto = async (req, res) => {
         }
 
         // ☁️ CLOUDINARY: Capturamos la URL segura que nos devuelve el middleware
-        const imagenUrl = req.file ? req.file.path : null;
+        const imagenUrl = req.file?.path || req.file?.secure_url || null;
 
         // Opcional: Obligar a que el producto tenga foto
         if (!imagenUrl) {

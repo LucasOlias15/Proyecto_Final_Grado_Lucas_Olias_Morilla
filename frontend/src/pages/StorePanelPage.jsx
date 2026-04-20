@@ -188,6 +188,7 @@ export const StorePanelPage = () => {
     if (imageFile) {
       // Si el usuario ha seleccionado una foto nueva, la enviamos
       formData.append("imagen", imageFile);
+      
     } else if (!editingId) {
       // SI NO hay foto nueva Y NO estamos editando (es producto nuevo), ERROR
       return mostrarNotificacion("Debes subir una imagen para el nuevo producto.", "error");
