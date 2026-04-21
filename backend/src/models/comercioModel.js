@@ -57,5 +57,27 @@ async function updateComercioImage(nuevaImagen, idComercio){
         throw error;
     }
 }
+// Al final del archivo, después de updateComercioImage
+async function updateComercio(idComercio, { nombre, descripcion, categoria, contacto, direccion, latitud, longitud }) {
+    try {
+        const [result] = await pool.query(
+            `UPDATE comercio 
+             SET nombre = ?, descripcion = ?, categoria = ?, contacto = ?, direccion = ?, latitud = ?, longitud = ? 
+             WHERE id_comercio = ?`,
+            [nombre, descripcion, categoria, contacto, direccion, latitud, longitud, idComercio]
+        );
+        return result.affectedRows > 0;
+    } catch (error) {
+        console.error('Error SQL en updateComercio:', error.message);
+        throw error;
+    }
+}
 
-export { createComercio, getComercioById, getAllComercios, updateComercioImage, getComercioByUsuarioId };
+export { 
+    createComercio, 
+    getComercioById, 
+    getAllComercios, 
+    updateComercioImage, 
+    getComercioByUsuarioId,
+    updateComercio   // <-- nueva exportación
+};

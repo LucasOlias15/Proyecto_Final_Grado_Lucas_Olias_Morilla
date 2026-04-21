@@ -1,4 +1,4 @@
-import { createComercio, getComercioById, getAllComercios, updateComercioImage, getComercioByUsuarioId } from "../models/comercioModel.js";
+import { createComercio, getComercioById, getAllComercios, updateComercioImage, getComercioByUsuarioId, updateComercio } from "../models/comercioModel.js";
 
 export const registrarComercio = async (req, res) => {
     try {
@@ -65,3 +65,46 @@ export const actualizarImagenComercio = async (req, res) => {
         return res.status(500).json({ error: "Error al actualizar la imagen" });
     }
 }
+export const actualizarComercio = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { nombre, descripcion, categoria, contacto, direccion, latitud, longitud } = req.body;
+        const idUsuario = req.user.id;
+
+        // Verificar que el comercio existe y pertenece al usuario
+        const comercio = await getComercioById(id);
+        if (!comercio) {
+            return res.status(404).json({ error: "Comercio no encontrado" });
+        }
+        if (comercio.id_usuario !== idUsuario) {
+            return res.status(403).json({ error: "No autorizado para modificar este comercio" });
+        }
+
+        const success = await updateComercio(id, { 
+            nombre, descripcion, categoria, contacto, direccion, latitud, longitud 
+        });
+
+        if (!success) {
+            return res.status(400).json({ error: "No se pudo actualizar el comercio" });
+        }
+
+        return res.status(200).json({ message: "Comercio actualizado exitosamente" });
+    } catch (error) {
+        console.error("Error en controlador actualizarComercio:", error);
+        return res.status(500).json({ error: "Error interno del servidor" });
+    }
+};
+
+export const obtenerMiComercio = async (req, res) => {
+    try {
+        const idUsuario = req.user.id;
+        const comercio = await getComercioByUsuarioId(idUsuario);
+        if (!comercio) {
+            return res.status(404).json({ error: "No tienes un comercio registrado" });
+        }
+        return res.status(200).json(comercio);
+    } catch (error) {
+        console.error("Error en controlador obtenerMiComercio:", error);
+        return res.status(500).json({ error: "Error interno del servidor" });
+    }
+};

@@ -1,29 +1,33 @@
 import { Router } from "express";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
-import { uploadImage } from "../middlewares/cloudinary.js"; 
-import { 
-    registrarComercio, 
-    obtenerComercioPorId, 
+import { uploadImage } from "../middlewares/cloudinary.js";
+import {
+    registrarComercio,
+    obtenerComercioPorId,
     obtenerTodosLosComercios,
-    actualizarImagenComercio 
-} from "../controllers/comercioController.js"; 
+    actualizarImagenComercio,
+    actualizarComercio,
+    obtenerMiComercio      
+} from "../controllers/comercioController.js";
 
-const router = Router();    
+const router = Router();
 
-// Ruta protegida para registrar un nuevo comercio
-// POST /api/comercios/
+// POST /api/comercios (protegido)
 router.post("/", authMiddleware, registrarComercio);
 
-// RUTA PÚBLICA: Obtener los datos de un comercio por su ID
-// GET /api/comercios/:id
-router.get("/:id", obtenerComercioPorId);
+// GET /api/comercios/mi-comercio (protegido)
+router.get("/mi-comercio", authMiddleware, obtenerMiComercio);
 
-// RUTA PÚBLICA: Obtener todos los comercios
-// GET /api/comercios/
+// GET /api/comercios (público)
 router.get("/", obtenerTodosLosComercios);
 
-// RUTA PROTEGIDA: Actualizar imagen de comercio 
-// PUT /api/comercios/:id/imagen
+// GET /api/comercios/:id (público)
+router.get("/:id", obtenerComercioPorId);
+
+// PUT /api/comercios/:id (protegido)
+router.put("/:id", authMiddleware, actualizarComercio);
+
+// PUT /api/comercios/:id/imagen (protegido)
 router.put("/:id/imagen", authMiddleware, uploadImage.single('imagen'), actualizarImagenComercio);
 
 export default router;
