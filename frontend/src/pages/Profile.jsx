@@ -18,6 +18,7 @@ import { useState, useEffect, useRef } from "react";
 import { useLocation, Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { LocationPicker } from "../components/LocationPicker";
+import useToastStore from '../store/useToastStore';
 
 // TODO coordenadas y mapa sincronizados , abrir favoritos antes de datos del comercio
 
@@ -25,17 +26,7 @@ export const Profile = () => {
   const [user, setUser] = useState(null);
   const [, setLocation] = useLocation();
 
-  const [coordenadasTienda, setCoordenadasTienda] = useState(null);
-
-  const [toast, setToast] = useState(null);
-
-  const mostrarNotificacion = (mensaje, tipo = "error") => {
-    setToast({ mensaje, tipo });
-
-    setTimeout(() => {
-      setToast(null);
-    }, 3000);
-  };
+  const toast = useToastStore();
 
   // --- ESTADOS DE LOS DESPLEGABLES ---
   const [showSettings, setShowSettings] = useState(false);
@@ -206,10 +197,18 @@ export const Profile = () => {
     });
   };
 
+const handleLocationSelect = (coords) => {
+  setShopFormData(prev => ({
+    ...prev,
+    latitud: coords.lat.toString(),
+    longitud: coords.lng.toString()
+  }));
+};
+
   const handleSave = async (e) => {
     e.preventDefault();
     if (!formData.claveActual) {
-      alert("Debes introducir tu contraseña actual para guardar los cambios.");
+      toast.warning("Debes introducir tu contraseña actual para guardar los cambios.")
       return;
     }
     const updatedData = {
@@ -231,15 +230,15 @@ export const Profile = () => {
       if (response.ok) {
         setUser(data.user);
         localStorage.setItem("user", JSON.stringify(data.user));
-        alert("¡Perfil actualizado con éxito!");
+        toast.success("¡Perfil actualizado con éxito!");
         setFormData((prev) => ({ ...prev, claveActual: "", nuevaClave: "" }));
         setShowSettings(false);
       } else {
-        alert(`Error: ${data.error || "No se pudo actualizar el perfil"}`);
+        toast.error(data.error || "No se pudo actualizar el perfil")
       }
     } catch (error) {
       console.error("Error de red:", error);
-      alert("No se pudo conectar con el servidor");
+      toast.info("No se pudo conectar con el servidor");
     }
   };
 
@@ -303,7 +302,7 @@ export const Profile = () => {
         setImagenPreview(imgData.imagenUrl);
       }
 
-      alert("¡Comercio actualizado con éxito!");
+      toast.info("¡Comercio actualizado con éxito!");
       // Actualizar el objeto comercio local
       setComercio({
         ...comercio,
@@ -314,7 +313,7 @@ export const Profile = () => {
       setShowShopForm(false);
     } catch (error) {
       console.error(error);
-      alert(`Error: ${error.message}`);
+      toast.error(error);
     }
   };
 
@@ -459,6 +458,118 @@ export const Profile = () => {
                 </div>
               </div>
 
+ <AnimatePresence>
+            {showFavorites && (
+              <motion.div
+                initial={{ opacity: 0, height: 0, scale: 0.95 }}
+                animate={{ opacity: 1, height: "auto", scale: 1 }}
+                exit={{ opacity: 0, height: 0, scale: 0.95 }}
+                transition={{ duration: 0.4, type: "spring", bounce: 0.2 }}
+                className="md:col-span-3 overflow-hidden origin-top"
+              >
+                <div className="bg-base-200 rounded-[2.5rem] p-8 border border-base-300 shadow-inner">
+                  {loadingFavs ? (
+                    <div className="flex justify-center py-12">
+                      <span className="loading loading-spinner loading-lg text-red-500"></span>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      {/* Tiendas favoritas */}
+                      <div>
+                        <h3 className="font-black text-xl mb-6 flex items-center gap-3 text-base-content">
+                          <Store className="w-6 h-6 text-red-500" /> Tiendas
+                          Favoritas
+                          <span className="badge badge-sm bg-red-100 text-red-600 border-none font-bold">
+                            {favShops.length}
+                          </span>
+                        </h3>
+                        {favShops.length === 0 ? (
+                          <p className="text-sm text-base-content/40 italic bg-base-100 p-6 rounded-3xl border border-base-200 text-center">
+                            No has guardado ninguna tienda aún.
+                          </p>
+                        ) : (
+                          <div className="space-y-3">
+                            {favShops.map((shop) => (
+                              <Link
+                                key={shop.id_comercio}
+                                href={`/tienda/${shop.id_comercio}`}
+                              >
+                                <div className="flex items-center gap-4 bg-base-100 p-3 rounded-2xl border border-base-200 hover:border-red-300 hover:shadow-md transition-all cursor-pointer group">
+                                  <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0">
+                                    <img
+                                      src={shop.imagen}
+                                      alt={shop.nombre}
+                                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                    />
+                                  </div>
+                                  <div className="flex-1">
+                                    <h4 className="font-bold text-base-content">
+                                      {shop.nombre}
+                                    </h4>
+                                    <p className="text-xs text-base-content/50">
+                                      {shop.categoria}
+                                    </p>
+                                  </div>
+                                  <ExternalLink className="w-5 h-5 text-base-content/20 group-hover:text-red-500 transition-colors mr-3" />
+                                </div>
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Productos favoritos */}
+                      <div>
+                        <h3 className="font-black text-xl mb-6 flex items-center gap-3 text-base-content">
+                          <ShoppingBasket className="w-6 h-6 text-red-500" />{" "}
+                          Productos Favoritos
+                          <span className="badge badge-sm bg-red-100 text-red-600 border-none font-bold">
+                            {favProducts.length}
+                          </span>
+                        </h3>
+                        {favProducts.length === 0 ? (
+                          <p className="text-sm text-base-content/40 italic bg-base-100 p-6 rounded-3xl border border-base-200 text-center">
+                            No has guardado ningún producto aún.
+                          </p>
+                        ) : (
+                          <div className="space-y-3">
+                            {favProducts.map((prod) => (
+                              <div
+                                key={prod.id_producto}
+                                className="flex items-center gap-4 bg-base-100 p-3 rounded-2xl border border-base-200 hover:border-red-300 hover:shadow-md transition-all group"
+                              >
+                                <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0">
+                                  <img
+                                    src={prod.imagen}
+                                    alt={prod.nombre}
+                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                  />
+                                </div>
+                                <div className="flex-1">
+                                  <h4 className="font-bold text-base-content leading-tight mb-1">
+                                    {prod.nombre}
+                                  </h4>
+                                  <p className="text-sm font-black text-jungle_teal">
+                                    {prod.precio}€
+                                  </p>
+                                </div>
+                                <Link href={`/tienda/${prod.id_comercio}`}>
+                                  <button className="btn btn-sm btn-circle btn-ghost text-base-content/40 hover:text-red-500 hover:bg-red-50 transition-colors mr-1">
+                                    <ExternalLink className="w-4 h-4" />
+                                  </button>
+                                </Link>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
               {/* BLOQUE DUEÑO 4: Editar Comercio (NUEVO) */}
               <div className="md:col-span-3 bg-base-200 rounded-[2.5rem] p-8 shadow-sm border border-base-300 transition-all duration-300 relative overflow-hidden">
                 <div
@@ -467,7 +578,7 @@ export const Profile = () => {
                       setShowShopForm(!showShopForm);
                       if (!showShopForm) setShowFavorites(false);
                     } else {
-                      alert(
+                      toast.info(
                         "Aún no has registrado un comercio. Ve a 'Registrar comercio'.",
                       );
                       // Podrías redirigir a /registrar-comercio
@@ -599,12 +710,13 @@ export const Profile = () => {
                               Ubicación en el mapa
                             </label>
                             <LocationPicker
-                              onLocationSelect={(coords) =>
-                                setCoordenadasTienda(coords)
-                              }
-                              onError={(mensaje) =>
-                                mostrarNotificacion(mensaje, "error")
-                              }
+                             onLocationSelect={handleLocationSelect}
+  onError={(mensaje) => toast.error(mensaje, "error")}
+  initialCoords={
+    shopFormData.latitud && shopFormData.longitud
+      ? { lat: parseFloat(shopFormData.latitud), lng: parseFloat(shopFormData.longitud) }
+      : null
+  }
                             />
                             {shopFormData.latitud && shopFormData.longitud && (
                               <p className="text-xs text-base-content/50 mt-1">
@@ -735,117 +847,7 @@ export const Profile = () => {
           )}
 
           {/* DESPLEGABLE DE FAVORITOS (común) */}
-          <AnimatePresence>
-            {showFavorites && (
-              <motion.div
-                initial={{ opacity: 0, height: 0, scale: 0.95 }}
-                animate={{ opacity: 1, height: "auto", scale: 1 }}
-                exit={{ opacity: 0, height: 0, scale: 0.95 }}
-                transition={{ duration: 0.4, type: "spring", bounce: 0.2 }}
-                className="md:col-span-3 overflow-hidden origin-top"
-              >
-                <div className="bg-base-200 rounded-[2.5rem] p-8 border border-base-300 shadow-inner">
-                  {loadingFavs ? (
-                    <div className="flex justify-center py-12">
-                      <span className="loading loading-spinner loading-lg text-red-500"></span>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      {/* Tiendas favoritas */}
-                      <div>
-                        <h3 className="font-black text-xl mb-6 flex items-center gap-3 text-base-content">
-                          <Store className="w-6 h-6 text-red-500" /> Tiendas
-                          Favoritas
-                          <span className="badge badge-sm bg-red-100 text-red-600 border-none font-bold">
-                            {favShops.length}
-                          </span>
-                        </h3>
-                        {favShops.length === 0 ? (
-                          <p className="text-sm text-base-content/40 italic bg-base-100 p-6 rounded-3xl border border-base-200 text-center">
-                            No has guardado ninguna tienda aún.
-                          </p>
-                        ) : (
-                          <div className="space-y-3">
-                            {favShops.map((shop) => (
-                              <Link
-                                key={shop.id_comercio}
-                                href={`/tienda/${shop.id_comercio}`}
-                              >
-                                <div className="flex items-center gap-4 bg-base-100 p-3 rounded-2xl border border-base-200 hover:border-red-300 hover:shadow-md transition-all cursor-pointer group">
-                                  <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0">
-                                    <img
-                                      src={shop.imagen}
-                                      alt={shop.nombre}
-                                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                                    />
-                                  </div>
-                                  <div className="flex-1">
-                                    <h4 className="font-bold text-base-content">
-                                      {shop.nombre}
-                                    </h4>
-                                    <p className="text-xs text-base-content/50">
-                                      {shop.categoria}
-                                    </p>
-                                  </div>
-                                  <ExternalLink className="w-5 h-5 text-base-content/20 group-hover:text-red-500 transition-colors mr-3" />
-                                </div>
-                              </Link>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Productos favoritos */}
-                      <div>
-                        <h3 className="font-black text-xl mb-6 flex items-center gap-3 text-base-content">
-                          <ShoppingBasket className="w-6 h-6 text-red-500" />{" "}
-                          Productos Favoritos
-                          <span className="badge badge-sm bg-red-100 text-red-600 border-none font-bold">
-                            {favProducts.length}
-                          </span>
-                        </h3>
-                        {favProducts.length === 0 ? (
-                          <p className="text-sm text-base-content/40 italic bg-base-100 p-6 rounded-3xl border border-base-200 text-center">
-                            No has guardado ningún producto aún.
-                          </p>
-                        ) : (
-                          <div className="space-y-3">
-                            {favProducts.map((prod) => (
-                              <div
-                                key={prod.id_producto}
-                                className="flex items-center gap-4 bg-base-100 p-3 rounded-2xl border border-base-200 hover:border-red-300 hover:shadow-md transition-all group"
-                              >
-                                <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0">
-                                  <img
-                                    src={prod.imagen}
-                                    alt={prod.nombre}
-                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                                  />
-                                </div>
-                                <div className="flex-1">
-                                  <h4 className="font-bold text-base-content leading-tight mb-1">
-                                    {prod.nombre}
-                                  </h4>
-                                  <p className="text-sm font-black text-jungle_teal">
-                                    {prod.precio}€
-                                  </p>
-                                </div>
-                                <Link href={`/tienda/${prod.id_comercio}`}>
-                                  <button className="btn btn-sm btn-circle btn-ghost text-base-content/40 hover:text-red-500 hover:bg-red-50 transition-colors mr-1">
-                                    <ExternalLink className="w-4 h-4" />
-                                  </button>
-                                </Link>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+         
 
           {/* BLOQUE COMÚN: AJUSTES DE CUENTA */}
           <div className="md:col-span-3 bg-base-200 rounded-[2.5rem] p-8 shadow-sm border border-base-300 transition-all duration-300 relative overflow-hidden">

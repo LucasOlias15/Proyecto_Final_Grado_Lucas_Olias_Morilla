@@ -14,8 +14,9 @@ import {
   REGEX_NOMBRE,
   REGEX_DESCRIPCION,
   REGEX_PRECIO,
-  REGEX_STOCK
+  REGEX_STOCK,
 } from "../../../common/validaciones";
+import useToastStore from "../store/useToastStore";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 const imageDefault =
@@ -37,7 +38,6 @@ export const StorePanelPage = () => {
   const [pedidos, setPedidos] = useState([]); // Lista de pedidos de los clientes
   const [activeTab, setActiveTab] = useState("productos"); // Pestaña actual seleccionada
   const [loading, setLoading] = useState(true); // Controla el spinner inicial
-  const [toast, setToast] = useState(null); // Notificaciones flotantes
 
   // ========================================================================
   // 3. ESTADOS PARA MODALES Y FORMULARIOS
@@ -67,10 +67,8 @@ export const StorePanelPage = () => {
   // 4. FUNCIONES UTILITARIAS
   // Pequeñas herramientas compartidas
   // ========================================================================
-  const mostrarNotificacion = (mensaje, tipo = "success") => {
-    setToast({ mensaje, tipo });
-    setTimeout(() => setToast(null), 3000);
-  };
+
+  const toast = useToastStore();
 
   const formatearFecha = (fechaIso) =>
     new Date(fechaIso).toLocaleString("es-ES", {
@@ -160,20 +158,20 @@ export const StorePanelPage = () => {
     const stock = Number(newProduct.stock);
 
     if (!REGEX_NOMBRE.test(nombre)) {
-      return mostrarNotificacion("El nombre debe tener al menos 3 caracteres.", "error");
+      return toast.error("El nombre debe tener al menos 3 caracteres.")
     }
-    
+
     if (!REGEX_DESCRIPCION.test(descripcion)) {
-      return mostrarNotificacion("Añade una descripción más detallada (min. 10 caracteres).", "error");
+      return toast.error("Añade una descripción más detallada (min. 10 caracteres).");
     }
 
     if (!REGEX_PRECIO.test(precio)) {
-      return mostrarNotificacion("El precio debe ser un número mayor que 0.", "error");
+      return toast.error("El precio debe ser un número mayor que 0.")
     }
 
     // El stock no puede ser negativo ni tener decimales
     if (!REGEX_STOCK.test(stock)) {
-      return mostrarNotificacion("El stock debe ser un número entero válido (0 o mayor).", "error");
+      return toast.error("El stock debe ser un número entero válido (0 o mayor).")
     }
 
     // Si pasamos todas las validaciones, preparamos los datos
@@ -184,13 +182,13 @@ export const StorePanelPage = () => {
     formData.append("descripcion", newProduct.descripcion.trim());
     formData.append("stock", Number(newProduct.stock));
     formData.append("id_comercio", storeId);
-    
+
     if (imageFile) {
       // Si el usuario ha seleccionado una foto nueva, la enviamos
       formData.append("imagen", imageFile);
     } else if (!editingId) {
       // SI NO hay foto nueva Y NO estamos editando (es producto nuevo), ERROR
-      return mostrarNotificacion("Debes subir una imagen para el nuevo producto.", "error");
+      return toast.warning("Debes subir una imagen para el nuevo producto.")
     }
     // Si estamos editando y imageFile es null, el backend simplemente no actualizará el campo de imagen
 
@@ -228,18 +226,12 @@ export const StorePanelPage = () => {
           ]);
         }
         setIsModalOpen(false);
-        mostrarNotificacion(
-          `Producto ${editingId ? "actualizado" : "añadido"} correctamente`,
-          "success",
-        );
+        toast.success(`Producto ${editingId ? "actualizado" : "añadido"} correctamente`);
       } else {
-        mostrarNotificacion(
-          data.error || "Error al procesar el producto",
-          "error",
-        );
+        toast.error(data.error || "Error al procesar el producto")
       }
     } catch (error) {
-      mostrarNotificacion("Error de conexión al guardar el producto.", "error");
+      toast.error("Error de conexión al guardar el producto.");
     }
   };
 
@@ -256,12 +248,12 @@ export const StorePanelPage = () => {
         setProducts(
           products.filter((p) => p.id_producto !== productToDelete.id_producto),
         );
-        mostrarNotificacion("Producto eliminado correctamente", "success");
+        toast.success("Producto eliminado correctamente")
       } else {
-        mostrarNotificacion("Error al eliminar el producto", "error");
+        toast.error("Error al eliminar el producto");
       }
     } catch (error) {
-      mostrarNotificacion("Error de conexión al intentar eliminar", "error");
+      toast.error("Error de conexión al intentar eliminar");
     } finally {
       setProductToDelete(null);
     }
@@ -288,12 +280,12 @@ export const StorePanelPage = () => {
             p.id_pedido === id_pedido ? { ...p, estado: nuevoEstado } : p,
           ),
         );
-        mostrarNotificacion("Estado actualizado", "success");
+        toast.success("Estado actualizado");
       } else {
-        mostrarNotificacion("Error al actualizar el estado", "error");
+        toast.error("Error al actualizar el estado");
       }
     } catch (error) {
-      mostrarNotificacion("Error de conexión", "error");
+      toast.error("Error de conexión");
     }
   };
 
@@ -303,7 +295,7 @@ export const StorePanelPage = () => {
   const handleUpdateStoreImage = async (e) => {
     e.preventDefault();
     if (!storeImageFile)
-      return mostrarNotificacion("Selecciona una imagen primero.", "error");
+      return toast.warning("Selecciona una imagen primero.");
 
     const formData = new FormData();
     formData.append("imagen", storeImageFile);
@@ -321,15 +313,12 @@ export const StorePanelPage = () => {
         setStore({ ...store, imagen: data.imagenUrl });
         setIsStoreModalOpen(false);
         setStoreImageFile(null);
-        mostrarNotificacion("¡Imagen de la tienda actualizada!", "success");
+        toast.success("¡Imagen de la tienda actualizada!");
       } else {
-        mostrarNotificacion(
-          data.error || "Error al actualizar la imagen",
-          "error",
-        );
+       toast.error(data.error || "Error al actualizar la imagen");
       }
     } catch (error) {
-      mostrarNotificacion("Error de conexión con el servidor", "error");
+      toast.error("Error de conexión con el servidor");
     }
   };
 
@@ -502,7 +491,7 @@ export const StorePanelPage = () => {
                                   <img
                                     src={product.imagen}
                                     alt={product.nombre}
-                                    className={`w-full h-full object-cover transition-all duration-300 ${product.stock <= 0 ? 'grayscale opacity-40' : ''}`}
+                                    className={`w-full h-full object-cover transition-all duration-300 ${product.stock <= 0 ? "grayscale opacity-40" : ""}`}
                                   />
                                 </div>
                                 <div>
@@ -671,8 +660,8 @@ export const StorePanelPage = () => {
                     type="number"
                     placeholder="Precio (€)"
                     required
-                    min="0.01" 
-                    step="0.01" 
+                    min="0.01"
+                    step="0.01"
                     className="input input-bordered w-full bg-base-200"
                     value={newProduct.precio}
                     onChange={(e) =>
@@ -683,8 +672,8 @@ export const StorePanelPage = () => {
                     type="number"
                     placeholder="Stock ud."
                     required
-                    min="0" 
-                    step="1" 
+                    min="0"
+                    step="1"
                     className="input input-bordered w-full bg-base-200"
                     value={newProduct.stock}
                     onChange={(e) =>
@@ -704,7 +693,7 @@ export const StorePanelPage = () => {
                     })
                   }
                 />
-                 {editingId && (
+                {editingId && (
                   <span className="text-xs opacity-50 ml-1">
                     Déjalo en blanco para mantener la imagen actual.
                   </span>
@@ -716,7 +705,7 @@ export const StorePanelPage = () => {
                   className="file-input file-input-bordered w-full bg-jungle_teal"
                   onChange={(e) => setImageFile(e.target.files[0])}
                 />
-               
+
                 <div className="modal-action mt-6">
                   <button
                     type="button"
@@ -811,24 +800,6 @@ export const StorePanelPage = () => {
                   </button>
                 </div>
               </form>
-            </div>
-          </div>
-        )}
-
-        {/* Toast Notificaciones */}
-        {toast && (
-          <div className="toast toast-top toast-center z-9999 mt-24 animate-fade-in-down">
-            <div
-              className={`alert shadow-2xl font-bold rounded-2xl text-white border-none pr-6 ${
-                toast.tipo === "error" ? "bg-error" : "bg-jungle_teal"
-              }`}
-            >
-              {toast.tipo === "error" ? (
-                <XCircle size={22} />
-              ) : (
-                <CheckCircle2 size={22} />
-              )}
-              <span>{toast.mensaje}</span>
             </div>
           </div>
         )}

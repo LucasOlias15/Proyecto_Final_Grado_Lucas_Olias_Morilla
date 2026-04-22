@@ -77,8 +77,6 @@ const crearTablas = async () => {
       )
     `);
 
-    // 3. ✨ LAS NUEVAS TABLAS DE PEDIDOS ✨
-
     await pool.query(`
       CREATE TABLE pedido (
         id_pedido INT AUTO_INCREMENT PRIMARY KEY,

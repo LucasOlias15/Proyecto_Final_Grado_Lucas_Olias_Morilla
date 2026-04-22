@@ -6,12 +6,10 @@ import {
   ShoppingBasket,
   Store,
   Heart,
-  SquareCheckBig,
-  Trash,
-  AlertCircle,
 } from "lucide-react";
 import { useCartStore } from "../store/useCartStore";
 import { motion } from "framer-motion";
+import useToastStore from "../store/useToastStore";
 
 export const ExplorePage = () => {
   // --- Datos ---
@@ -26,7 +24,7 @@ export const ExplorePage = () => {
   const [viewMode, setViewMode] = useState("tiendas");
 
   // --- UI y Usuario ---
-  const [toast, setToast] = useState(null);
+  const toast = useToastStore();
 
   // --- Favoritos ---
   const [favProductos, setFavProductos] = useState([]);
@@ -119,22 +117,13 @@ export const ExplorePage = () => {
     };
   }, [searchString]);
 
-  // 3. FUNCIONES AUXILIARES Y LÓGICA DE NEGOCIO
-  const mostrarNotificacion = (mensaje, tipo) => {
-    setToast({ mensaje, tipo });
-    setTimeout(() => setToast(null), 3000);
-  };
-
   // 👇 3. FUNCIÓN INTELIGENTE PARA MANEJAR AMBOS TIPOS 👇
   const handleToggleFavorito = async (e, id, tipo) => {
     e.preventDefault();
     e.stopPropagation(); // MUY IMPORTANTE: Evita que el clic en el corazón te lleve a la tienda
 
     if (!usuario) {
-      return mostrarNotificacion(
-        "Inicia sesión para guardar favoritos.",
-        "error",
-      );
+      toast.warning("Inicia sesión para guardar favoritos.");
     }
 
     // Preparamos el paquete dinámicamente según lo que estemos guardando
@@ -156,14 +145,11 @@ export const ExplorePage = () => {
 
       if (res.ok) {
         if (data.isFavorite) {
-          mostrarNotificacion(data.message || `Añadido a favoritos`, "success");
+          toast.success(data.message || "Añadido a favoritos");
           if (tipo === "producto") setFavProductos((prev) => [...prev, id]);
           if (tipo === "comercio") setFavComercios((prev) => [...prev, id]);
         } else {
-          mostrarNotificacion(
-            data.message || `Eliminado de favoritos`,
-            "removed",
-          );
+          toast.info(data.message || "Eliminado de favoritos");
           if (tipo === "producto")
             setFavProductos((prev) => prev.filter((item) => item !== id));
           if (tipo === "comercio")
@@ -171,7 +157,7 @@ export const ExplorePage = () => {
         }
       }
     } catch (error) {
-      mostrarNotificacion("Error de conexión al guardar favorito.", "error");
+      toast.error("Error de conexión al guardar favorito.");
     }
   };
 
@@ -218,12 +204,9 @@ export const ExplorePage = () => {
 
       addToCart(userId, productoParaElCarrito);
       window.dispatchEvent(new CustomEvent("openCart"));
-      mostrarNotificacion(`Añadido: ${producto.nombre}`, "success");
+      toast.success(`Añadido: ${producto.nombre}`);
     } else {
-      mostrarNotificacion(
-        "Inicia sesión para añadir productos a tu cesta.",
-        "error",
-      );
+      toast.warning("Inicia sesión para añadir productos a tu cesta.");
     }
   };
 
@@ -371,7 +354,7 @@ export const ExplorePage = () => {
                         <img
                           src={product.imagen}
                           alt={product.nombre}
-                          className={`w-full h-full object-cover transition-all duration-300 ${product.stock <= 0 ? 'grayscale opacity-40' : ''}`}
+                          className={`w-full h-full object-cover transition-all duration-300 ${product.stock <= 0 ? "grayscale opacity-40" : ""}`}
                         />
                         {/* 👇 5. LE PASAMOS 'producto' COMO TIPO 👇 */}
                         <button
@@ -475,28 +458,6 @@ export const ExplorePage = () => {
             )}
           </section>
         </main>
-
-        {/* 5. TOAST NOTIFICATIONS */}
-        {toast && (
-          <div className="toast toast-top toast-center z-100 animate-fade-in-down mt-16 md:mt-4">
-            <div
-              className={`alert shadow-2xl text-white font-bold border-none rounded-2xl flex items-center gap-3
-                            ${
-                              toast.tipo === "error"
-                                ? "bg-error"
-                                : toast.tipo === "removed"
-                                  ? "bg-orange-500"
-                                  : "bg-jungle_teal"
-                            }`}
-            >
-              {toast.tipo === "error" && <AlertCircle size={22} />}
-              {toast.tipo === "removed" && <Trash size={22} />}
-              {toast.tipo === "success" && <SquareCheckBig size={22} />}
-
-              <span>{toast.mensaje}</span>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

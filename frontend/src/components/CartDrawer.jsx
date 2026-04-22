@@ -2,11 +2,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useCartStore } from "../store/useCartStore";
 import { useState } from "react";
 import { Link } from "wouter";
-import { AlertCircle, CheckCircle2, ShoppingCart } from "lucide-react"; // 👈 Importamos iconos para las alertas
+import { ShoppingCart } from "lucide-react";  
+import useToastStore from "../store/useToastStore";
 
 export const CartDrawer = ({ isOpen, onClose }) => {
   const user = JSON.parse(localStorage.getItem("user"));
   const userId = user?.id || user?.id_usuario;
+
+  const toast = useToastStore();  
 
   const carts = useCartStore((state) => state.carts);
   const updateQuantity = useCartStore((state) => state.updateQuantity);
@@ -23,17 +26,6 @@ export const CartDrawer = ({ isOpen, onClose }) => {
 
   const [isCheckingOut, setIsCheckingOut] = useState(false);
 
-  // 👇 1. ESTADO PARA NUESTRO SISTEMA DE NOTIFICACIONES (TOAST) 👇
-  const [toast, setToast] = useState(null);
-
-  // Función para mostrar la alerta durante 3.5 segundos
-  const mostrarNotificacion = (mensaje, tipo = "error") => {
-    setToast({ mensaje, tipo });
-    setTimeout(() => {
-      setToast(null);
-    }, 3500);
-  };
-
   const handleCheckout = async () => {
     setIsCheckingOut(true);
     try {
@@ -41,10 +33,7 @@ export const CartDrawer = ({ isOpen, onClose }) => {
 
       if (!productoValido) {
         // Sustituimos el alert por nuestra notificación
-        mostrarNotificacion(
-          "Carrito desactualizado. Por favor, vacíalo y vuelve a añadir los productos.",
-          "error",
-        );
+        toast.error("Carrito desactualizado. Por favor, vacíalo y vuelve a añadir los productos.");
         setIsCheckingOut(false);
         return;
       }
@@ -77,11 +66,7 @@ export const CartDrawer = ({ isOpen, onClose }) => {
         cart.forEach((item) =>
           removeFromCart(userId, item.id_producto || item.id),
         );
-        // Notificación de éxito
-        mostrarNotificacion(
-          "¡Pedido realizado con éxito! Preparando tu compra...",
-          "success",
-        );
+        toast.success("¡Pedido realizado con éxito! Preparando tu compra...");
 
         // Retrasamos el cierre del cajón un segundito para que el usuario vea el mensaje de éxito
         window.dispatchEvent(new CustomEvent('actualizarCatalogo'));
@@ -91,28 +76,18 @@ export const CartDrawer = ({ isOpen, onClose }) => {
       } else {
         try {
           const errorData = JSON.parse(responseText);
-          mostrarNotificacion(
-            "Error del servidor: " +
-              (errorData.error || errorData.message || "Desconocido"),
-            "error",
-          );
+          toast.error("Error en el servidor. Inténtalo de nuevo más tarde.");
         } catch (parseError) {
           console.error(
             "🔥 EL SERVIDOR DEVOLVIÓ ESTO (No es JSON):",
             responseText,
           );
-          mostrarNotificacion(
-            `Error crítico en el servidor (Código ${response.status}).`,
-            "error",
-          );
+          toast.error("Error en el servidor. Inténtalo de nuevo más tarde.");
         }
       }
     } catch (error) {
       console.error("🚨 Error de Red o de Código en el checkout:", error);
-      mostrarNotificacion(
-        "Error de conexión. Revisa tu internet o el estado del servidor.",
-        "error",
-      );
+      toast.error("Error de conexión. Revisa tu internet.");
     } finally {
       setIsCheckingOut(false);
     }
@@ -321,30 +296,7 @@ export const CartDrawer = ({ isOpen, onClose }) => {
         )}
       </AnimatePresence>
 
-      {/* 👇 2. EL TOAST ANIMADO (Se renderiza por encima de todo) 👇 */}
-      <AnimatePresence>
-        {toast && (
-          <motion.div
-            initial={{ opacity: 0, y: -50, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.9 }}
-            transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className="toast toast-top toast-center z-1000 mt-4"
-          >
-            <div
-              className={`alert shadow-2xl text-white font-bold border-none rounded-2xl flex items-center gap-3 pr-6
-                  ${toast.tipo === "error" ? "bg-error" : "bg-green-900"}`}
-            >
-              {toast.tipo === "error" ? (
-                <AlertCircle size={22} />
-              ) : (
-                <CheckCircle2 size={22} />
-              )}
-              <span>{toast.mensaje}</span>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      
     </>
   );
 };

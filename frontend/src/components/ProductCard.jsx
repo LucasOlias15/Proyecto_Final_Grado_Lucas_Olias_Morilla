@@ -23,7 +23,6 @@ export const ProductCard = ({ product, isFavorito }) => {
     window.dispatchEvent(new CustomEvent("openCart"));
   };
 
-  // NUEVO: Ahora avisamos al backend al hacer clic
   const handleFavorito = async (e) => {
     e.preventDefault();
     const userString = localStorage.getItem("user");
@@ -31,7 +30,7 @@ export const ProductCard = ({ product, isFavorito }) => {
 
     if (!usuario) {
       console.log("Usuario no logueado");
-      return; // Aquí podrías mostrar un toast de error en el futuro
+      return; 
     }
 
     // 1. Cambiamos el color al instante para que el usuario lo vea rápido

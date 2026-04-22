@@ -10,6 +10,7 @@ import { Profile } from './pages/Profile';
 import { ExplorePage } from './pages/ExplorePage';
 import { OrdersPage } from './pages/OrdersPage';
 import { RegisterPage } from './pages/RegisterPage';
+import { ToastContainer } from './components/ToastContainer';
 
 function App() {
   return (
@@ -58,6 +59,7 @@ function App() {
             </div>
           </Route>
         </Switch>
+        <ToastContainer />
       </MainLayout>
   );
 }
