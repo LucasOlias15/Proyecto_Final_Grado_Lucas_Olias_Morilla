@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useCartStore } from "../store/useCartStore";
+import { useCartStore } from "../../store/useCartStore";
 import { HeartPlus } from "lucide-react";
 import { useState } from "react";
 

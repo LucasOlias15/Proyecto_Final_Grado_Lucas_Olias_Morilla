@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useSearch, useLocation } from "wouter";
-import { IconTicker } from "../components/IconTicker";
+import { IconTicker } from "../components/home/IconTicker";
 import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";

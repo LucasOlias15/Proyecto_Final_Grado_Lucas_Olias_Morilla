@@ -1,11 +1,12 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useCartStore } from "../store/useCartStore";
+import { useCartStore } from "../../store/useCartStore";  
 import { useState } from "react";
 import { Link } from "wouter";
-import { ShoppingCart } from "lucide-react";  
-import useToastStore from "../store/useToastStore";
+import { ShoppingCart } from "lucide-react";
+import useToastStore from "../../store/useToastStore";      
 
 export const CartDrawer = ({ isOpen, onClose }) => {
+  // ... resto del código
   const user = JSON.parse(localStorage.getItem("user"));
   const userId = user?.id || user?.id_usuario;
 

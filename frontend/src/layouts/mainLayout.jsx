@@ -1,7 +1,7 @@
-import { Footer } from '../components/Footer';
-import { TopMenuLayout } from '../components/TopMenuLayout';
-import { FloatingMapButton } from '../components/FloatingMapButton'; 
-import { ScrollToTop } from '../components/ScrollToTop'; 
+import { Footer } from '../components/common/Footer';
+import { TopMenuLayout } from '../components/shop/TopMenuLayout';
+import { FloatingMapButton } from '../components/map/FloatingMapButton'; 
+import { ScrollToTop } from '../components/common/ScrollToTop';
 
 export const MainLayout = ({ children }) => {
   return (

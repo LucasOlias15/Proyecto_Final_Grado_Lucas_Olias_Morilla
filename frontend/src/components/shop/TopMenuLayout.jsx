@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "wouter"; 
-import { Header } from "./Header"; 
+import { Header } from '../common/Header';
 // 1. IMPORTAMOS EL NUEVO ICONO (Cake)
 import { Banana, Croissant, Beef, Leaf, House, PackageSearch, ShoppingBag, LayoutList, Wrench, Shirt, Amphora, LocateFixed, Cake } from "lucide-react";
 

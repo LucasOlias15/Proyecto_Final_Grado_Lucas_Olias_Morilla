@@ -24,7 +24,7 @@ import {
   REGEX_DESCRIPCION_TIENDA,
 } from "../../../common/validaciones.js";
 import { useState } from "react";
-import { LocationPicker } from "../components/LocationPicker";
+import { LocationPicker } from "../components/map/LocationPicker";
 import { Link, useLocation } from "wouter";
 
 export const RegisterPage = () => {

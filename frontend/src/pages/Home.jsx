@@ -1,9 +1,10 @@
-import { HeroSection } from "../components/HeroSection";
-import { CategoriesBento } from "../components/CategoriesBento";
-import { ProductsCarousel } from "../components/ProductsCarousel";
-import { InfiniteTicker } from "../components/InfiniteTicker";
-import { MerchantBanner } from "../components/MerchantBanner";
-import { TestimonialsStack } from "../components/TestimonialsStack";
+import { HeroSection } from '../components/home/HeroSection';
+import { CategoriesBento } from '../components/home/CategoriesBento';
+import { IconTicker } from '../components/home/IconTicker';
+import { InfiniteTicker } from '../components/home/InfiniteTicker';
+import { MerchantBanner } from '../components/home/MerchantBanner';
+import { ProductsCarousel } from '../components/home/ProductsCarousel';
+import { TestimonialsStack } from '../components/home/TestimonialsStack';
 
 export const Home = () => {
   return (

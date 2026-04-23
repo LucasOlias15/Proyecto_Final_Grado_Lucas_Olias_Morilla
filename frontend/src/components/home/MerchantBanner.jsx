@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { RegisterShopModal } from './RegisterShopModal';
+import { RegisterShopModal } from '../shop/RegisterShopModal';
 import { BookOpenText, ChartColumnIncreasing, LucideHandshake, Package, Rocket } from 'lucide-react';
 
 export const MerchantBanner = () => {

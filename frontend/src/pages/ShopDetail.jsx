@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useRoute } from "wouter";
-import { ProductCard } from "../components/ProductCard";
+import { ProductCard } from "../components/product/ProductCard";
 import { Heart, ShieldBan } from "lucide-react";
 
 export const ShopDetail = () => {

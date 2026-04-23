@@ -1,9 +1,9 @@
-import { Logo } from './Logo';
+import { Logo } from './Logo';  
+import { CartDrawer } from '../cart/CartDrawer';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { CartDrawer } from './CartDrawer';
 import { Link, useLocation } from 'wouter';
-import { useCartStore } from '../store/useCartStore';
+import { useCartStore } from '../../store/useCartStore';
 
 export const Header = ({ toggleMenu }) => {
 

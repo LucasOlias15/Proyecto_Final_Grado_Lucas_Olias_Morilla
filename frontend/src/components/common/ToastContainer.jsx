@@ -1,15 +1,7 @@
-// src/components/ToastContainer.jsx
-import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  CheckCircle2, 
-  XCircle, 
-  AlertTriangle, 
-  Info, 
-  X 
-} from 'lucide-react';
-import useToastStore from '../store/useToastStore';
+import { CheckCircle2, XCircle, AlertTriangle, Info, X } from 'lucide-react';
+import useToastStore from '../../store/useToastStore';
 
 const toastConfig = {
   success: {

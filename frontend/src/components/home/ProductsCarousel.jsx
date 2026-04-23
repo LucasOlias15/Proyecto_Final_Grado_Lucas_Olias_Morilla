@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { useCartStore } from "../store/useCartStore";
+import { useCartStore } from "../../store/useCartStore";
 import { ChevronLeft, ChevronRight, ShoppingBasket, Store } from "lucide-react";
 import { Link } from "wouter";
 
