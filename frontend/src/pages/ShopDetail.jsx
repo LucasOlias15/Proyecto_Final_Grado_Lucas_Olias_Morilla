@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useRoute } from "wouter";
 import { ProductCard } from "../components/product/ProductCard";
 import { Heart, ShieldBan } from "lucide-react";
+import { ContactModal } from "../components/common/ContactModal";
 
 export const ShopDetail = () => {
   const [, params] = useRoute("/tienda/:id");
@@ -16,6 +17,7 @@ export const ShopDetail = () => {
   const [loading, setLoading] = useState(true);
   const [shopInfo, setShopInfo] = useState(null);
   const [errorTienda, setErrorTienda] = useState(false);
+  const [contactModalAbierto, setContactModalAbierto] = useState(false);
 
   // El estado para guardar la lista de IDs favoritos de este usuario
   const [favProductos, setFavProductos] = useState([]);
@@ -76,6 +78,8 @@ export const ShopDetail = () => {
             ? [dataComercio.categoria]
             : ["General"],
           image: dataComercio.imagen,
+            contacto: dataComercio.contacto,        // ← AÑADIR
+            email: dataComercio.email_contacto,
         });
 
         // LÓGICA: Guardamos los productos en el estado
@@ -85,7 +89,7 @@ export const ShopDetail = () => {
           price: p.precio,
           description: p.descripcion,
           img: p.imagen,
-          id_comercio: Number(params.id), 
+          id_comercio: Number(params.id),
         }));
 
         setProducts(productosFormateados);
@@ -274,7 +278,10 @@ export const ShopDetail = () => {
                       <span>Cerrado</span>
                     </li>
                   </ul>
-                  <button className="w-full mt-6 py-3 bg-jungle_teal text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-sea_green transition-colors">
+                  <button
+                    onClick={() => setContactModalAbierto(true)}
+                    className="w-full mt-6 py-3 bg-jungle_teal text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-sea_green transition-colors"
+                  >
                     Contactar
                   </button>
                 </div>
@@ -304,7 +311,7 @@ export const ShopDetail = () => {
           </div>
         ) : products.length === 0 ? (
           <div className="w-full py-20 text-center opacity-50 font-bold text-xl">
-            Este comercio aún no ha subido productos <ShieldBan/>
+            Este comercio aún no ha subido productos <ShieldBan />
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
@@ -325,6 +332,15 @@ export const ShopDetail = () => {
           </div>
         )}
       </section>
+      <ContactModal
+        isOpen={contactModalAbierto}
+        onClose={() => setContactModalAbierto(false)}
+        comercio={{
+          nombre: shopInfo?.name,
+          contacto: shopInfo?.contacto || null,
+          email_contacto: shopInfo?.email_contacto || shopInfo?.email || null,
+        }}
+      />
     </div>
   );
 };

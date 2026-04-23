@@ -17,9 +17,11 @@ import {
   Amphora,
   Cake,
   Star,
+  Smile,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import useToastStore from "../store/useToastStore";
+import { ContactModal } from "../components/common/ContactModal";
 
 export const OrdersPage = () => {
   // ========================================================================
@@ -29,6 +31,9 @@ export const OrdersPage = () => {
   const [pedidos, setPedidos] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [pedidoSeleccionado, setPedidoSeleccionado] = useState(null);
+
+  const [contactModalAbierto, setContactModalAbierto] = useState(false);
+  const [comercioAContactar, setComercioAContactar] = useState(null);
 
   // ========================================================================
   // 2. ESTADOS PARA VALORACIONES
@@ -184,9 +189,9 @@ export const OrdersPage = () => {
     return pedidosValorados.has(pedido.id_pedido);
   };
 
-  // ========================================================================
-  // 6. FUNCIONES PARA VALORACIONES
-  // ========================================================================
+  // =====================================================================================
+  // 6. FUNCIONES PARA VALORACIONES (SIN TERMINAR) Y FUNCIÓN PARA ABRIR MODAL DE CONTACTO
+  // =====================================================================================
   const abrirModalValoracion = (pedido) => {
     setPedidoAValorar(pedido);
     setPuntuacion(0);
@@ -242,6 +247,20 @@ export const OrdersPage = () => {
       setEnviandoValoracion(false);
     }
   };
+
+  const abrirContacto = (pedido) => {
+  const primeraTienda = pedido.tiendas?.[0];
+  if (primeraTienda) {
+    setComercioAContactar({
+      nombre: primeraTienda.nombre,
+      contacto: primeraTienda.contacto || null,
+      email_contacto: primeraTienda.email_contacto || null,  
+    });
+    setContactModalAbierto(true);
+  } else {
+    toast.warning("No se encontraron datos de contacto");
+  }
+};
 
   // ========================================================================
   // 7. RENDERIZADO
@@ -390,7 +409,7 @@ export const OrdersPage = () => {
                               onClick={() => abrirModalValoracion(pedido)}
                               className="btn bg-amber-500 hover:bg-amber-600 text-white border-none rounded-xl text-sm px-5 gap-2"
                             >
-                              <Star size={16} /> Valorar compra
+                              <Star size={16} /> 
                             </button>
                           )}
 
@@ -401,7 +420,10 @@ export const OrdersPage = () => {
                             </span>
                           )}
 
-                          <button className="btn btn-ghost text-base-content/70 hover:bg-base-200 rounded-xl text-sm px-5">
+                          <button
+                            onClick={() => abrirContacto(pedido)}
+                            className="btn text-white bg-yellow-400 hover:bg-yellow_green-500 rounded-xl text-sm px-5"
+                          >
                             Contactar tienda
                           </button>
                           <button
@@ -443,7 +465,7 @@ export const OrdersPage = () => {
       {/* ======================================================================== */}
       <AnimatePresence>
         {pedidoSeleccionado && (
-          <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="fixed inset-0 z-300 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -529,7 +551,7 @@ export const OrdersPage = () => {
       {/* ======================================================================== */}
       <AnimatePresence>
         {modalValoracionAbierto && pedidoAValorar && (
-          <div className="fixed inset-0 z-[400] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="fixed inset-0 z-400 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -618,7 +640,6 @@ export const OrdersPage = () => {
                 </button>
                 <button
                   type="button"
-                  onClick={enviarValoracion}
                   disabled={puntuacion === 0 || enviandoValoracion}
                   className="btn bg-amber-500 hover:bg-amber-600 text-white border-none flex-1 rounded-xl disabled:bg-base-300 disabled:text-base-content/40"
                 >
@@ -626,7 +647,7 @@ export const OrdersPage = () => {
                     <span className="loading loading-spinner loading-sm"></span>
                   ) : (
                     <>
-                      <Star size={16} /> Enviar valoración
+                      Todavía no funciono <Smile size={16} />
                     </>
                   )}
                 </button>
@@ -635,6 +656,11 @@ export const OrdersPage = () => {
           </div>
         )}
       </AnimatePresence>
+      <ContactModal
+        isOpen={contactModalAbierto}
+        onClose={() => setContactModalAbierto(false)}
+        comercio={comercioAContactar}
+      />
     </div>
   );
 };
