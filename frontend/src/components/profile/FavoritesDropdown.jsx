@@ -2,11 +2,7 @@ import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { Store, ShoppingBasket, ExternalLink } from "lucide-react";
 
-export const FavoritesDropdown = ({ 
-  loadingFavs, 
-  favShops, 
-  favProducts 
-}) => {
+export const FavoritesDropdown = ({ loadingFavs, favShops, favProducts }) => {
   return (
     <motion.div
       initial={{ opacity: 0, height: 0, scale: 0.95 }}
@@ -35,9 +31,12 @@ export const FavoritesDropdown = ({
                   No has guardado ninguna tienda aún.
                 </p>
               ) : (
-                <div className="space-y-3">
+                <div className="flex flex-col gap-3">
                   {favShops.map((shop) => (
-                    <Link key={shop.id_comercio} href={`/tienda/${shop.id_comercio}`}>
+                    <Link
+                      key={shop.id_comercio}
+                      href={`/tienda/${shop.id_comercio}`}
+                    >
                       <div className="flex items-center gap-4 bg-base-100 p-3 rounded-2xl border border-base-200 hover:border-red-300 hover:shadow-md transition-all cursor-pointer group">
                         <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0">
                           <img
@@ -47,8 +46,12 @@ export const FavoritesDropdown = ({
                           />
                         </div>
                         <div className="flex-1">
-                          <h4 className="font-bold text-base-content">{shop.nombre}</h4>
-                          <p className="text-xs text-base-content/50">{shop.categoria}</p>
+                          <h4 className="font-bold text-base-content">
+                            {shop.nombre}
+                          </h4>
+                          <p className="text-xs text-base-content/50">
+                            {shop.categoria}
+                          </p>
                         </div>
                         <ExternalLink className="w-5 h-5 text-base-content/20 group-hover:text-red-500 transition-colors mr-3" />
                       </div>
@@ -61,7 +64,8 @@ export const FavoritesDropdown = ({
             {/* Productos favoritos */}
             <div>
               <h3 className="font-black text-xl mb-6 flex items-center gap-3 text-base-content">
-                <ShoppingBasket className="w-6 h-6 text-red-500" /> Productos Favoritos
+                <ShoppingBasket className="w-6 h-6 text-red-500" /> Productos
+                Favoritos
                 <span className="badge badge-sm bg-red-100 text-red-600 border-none font-bold">
                   {favProducts.length}
                 </span>
@@ -71,7 +75,7 @@ export const FavoritesDropdown = ({
                   No has guardado ningún producto aún.
                 </p>
               ) : (
-                <div className="space-y-3">
+                <div className="flex flex-col gap-3">
                   {favProducts.map((prod) => (
                     <div
                       key={prod.id_producto}
@@ -88,7 +92,9 @@ export const FavoritesDropdown = ({
                         <h4 className="font-bold text-base-content leading-tight mb-1">
                           {prod.nombre}
                         </h4>
-                        <p className="text-sm font-black text-jungle_teal">{prod.precio}€</p>
+                        <p className="text-sm font-black text-jungle_teal">
+                          {prod.precio}€
+                        </p>
                       </div>
                       <Link href={`/tienda/${prod.id_comercio}`}>
                         <button className="btn btn-sm btn-circle btn-ghost text-base-content/40 hover:text-red-500 hover:bg-red-50 transition-colors mr-1">

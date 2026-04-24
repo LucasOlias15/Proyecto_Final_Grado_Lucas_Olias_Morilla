@@ -1,4 +1,4 @@
-import { getUserByEmail, createUser, getUserById , updateUserInfo} from "../models/userModel.js";
+import { getUserByEmail, createUser, getUserById , updateUserInfo, deleteUser} from "../models/userModel.js";
 import { createComercio } from "../models/comercioModel.js";
 import { getComercioByUsuarioId } from "../models/comercioModel.js";
 import { REGEX_NOMBRE_USUARIO,REGEX_EMAIL,REGEX_CONTRASENYA,REGEX_TELEFONO,REGEX_NOMBRE_TIENDA,REGEX_DIRECCION,REGEX_DESCRIPCION } from "../../../common/validaciones.js";
@@ -150,6 +150,35 @@ export const obtenerPerfil = async (req, res) => {
         });
     } catch (error) {
         res.status(500).json({ error: "Error al obtener el perfil" });
+    }
+};
+
+export const eliminarCuenta = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { clave } = req.body;
+
+        const user = await getUserById(userId);
+        if (!user) {
+            return res.status(404).json({ error: "Usuario no encontrado" });
+        }
+
+        const claveCorrecta = await bcrypt.compare(clave, user.contraseña);
+        if (!claveCorrecta) {
+            return res.status(401).json({ error: "Contraseña incorrecta" });
+        }
+
+        const eliminado = await deleteUser(userId);
+        
+        if (!eliminado) {
+            return res.status(500).json({ error: "No se pudo eliminar la cuenta" });
+        }
+
+        return res.status(200).json({ message: "Cuenta eliminada correctamente" });
+
+    } catch (error) {
+        console.error("Error en eliminarCuenta:", error);
+        return res.status(500).json({ error: "Error al eliminar la cuenta" });
     }
 };
 

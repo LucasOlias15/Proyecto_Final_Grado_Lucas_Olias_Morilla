@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { uploadImage } from "../middlewares/cloudinary.js";
-import { registrarUsuario, loginUsuario, obtenerPerfil, actualizarPerfil } from "../controllers/userController.js";
+import { registrarUsuario, loginUsuario, obtenerPerfil, actualizarPerfil, eliminarCuenta } from "../controllers/userController.js";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 
 const router = Router();
@@ -18,5 +18,8 @@ router.post("/login", loginUsuario);
 
 // Actualización de datos del usuario (¡AHORA PROTEGIDO TAMBIÉN!)
 router.put("/perfil", authMiddleware, actualizarPerfil); 
+
+// Eliminar la cuenta totalmente
+router.delete("/cuenta", authMiddleware, eliminarCuenta);
 
 export default router;

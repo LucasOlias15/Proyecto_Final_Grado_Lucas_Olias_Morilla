@@ -3,9 +3,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Settings, Lock } from "lucide-react";
 import useToastStore from "../../store/useToastStore";
 
-export const ProfileSettings = ({ user, setUser, showSettings, setShowSettings }) => {
+export const ProfileSettings = ({
+  user,
+  setUser,
+  showSettings,
+  setShowSettings,
+}) => {
   const toast = useToastStore();
-  
+
   const [formData, setFormData] = useState({
     nombre: "",
     email: "",
@@ -34,17 +39,48 @@ export const ProfileSettings = ({ user, setUser, showSettings, setShowSettings }
   const handleSave = async (e) => {
     e.preventDefault();
     if (!formData.claveActual) {
-      toast.warning("Debes introducir tu contraseña actual para guardar los cambios.");
+      toast.warning(
+        "Debes introducir tu contraseña actual para guardar los cambios.",
+      );
       return;
     }
-    
+
+    const handleDeleteAccount = async (clave) => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch("http://localhost:3000/api/users/cuenta", {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ clave }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          toast.success("Cuenta eliminada. Hasta pronto 👋");
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          setTimeout(() => {
+            window.location.href = "/";
+          }, 1500);
+        } else {
+          toast.error(data.error || "Error al eliminar la cuenta");
+        }
+      } catch (error) {
+        toast.error("Error de conexión");
+      }
+    };
+
     const updatedData = {
       nombre: formData.nombre,
       email: formData.email,
       clave: formData.claveActual,
       ...(formData.nuevaClave && { nuevaClave: formData.nuevaClave }),
     };
-    
+
     try {
       const response = await fetch(`http://localhost:3000/api/users/perfil`, {
         method: "PUT",
@@ -54,7 +90,7 @@ export const ProfileSettings = ({ user, setUser, showSettings, setShowSettings }
         },
         body: JSON.stringify(updatedData),
       });
-      
+
       const data = await response.json();
       if (response.ok) {
         setUser(data.user);
@@ -111,11 +147,15 @@ export const ProfileSettings = ({ user, setUser, showSettings, setShowSettings }
             transition={{ duration: 0.3 }}
             className="overflow-hidden"
           >
-            <form onSubmit={handleSave} className="mt-8 pt-8 border-t border-base-200">
+            <form
+              onSubmit={handleSave}
+              className="mt-8 pt-8 border-t border-base-200"
+            >
               <div className="mb-6 p-5 bg-yellow-700 border border-yellow-500 rounded-2xl flex gap-3 items-start">
                 <Lock className="text-yellow-300" />
                 <p className="text-sm font-medium text-yellow-300">
-                  Por tu seguridad, necesitas introducir tu contraseña actual para guardar cualquier cambio.
+                  Por tu seguridad, necesitas introducir tu contraseña actual
+                  para guardar cualquier cambio.
                 </p>
               </div>
 
@@ -163,7 +203,9 @@ export const ProfileSettings = ({ user, setUser, showSettings, setShowSettings }
                 <div className="flex flex-col gap-2">
                   <label className="text-xs font-bold uppercase tracking-widest text-base-content/70 ml-2 flex items-center justify-between">
                     <span>Nueva Contraseña</span>
-                    <span className="text-[10px] font-normal lowercase opacity-70">(opcional)</span>
+                    <span className="text-[10px] font-normal lowercase opacity-70">
+                      (opcional)
+                    </span>
                   </label>
                   <input
                     type="password"
@@ -192,9 +234,81 @@ export const ProfileSettings = ({ user, setUser, showSettings, setShowSettings }
                 </button>
               </div>
             </form>
+            {/* Al final del formulario, antes del cierre del motion.div */}
+            <div className="mt-8 pt-8 border-t border-error/20">
+              <p className="text-sm text-base-content/60 mb-4">
+                Eliminar tu cuenta es una acción permanente. Se borrarán todos
+                tus datos, pedidos y valoraciones.
+              </p>
+
+              <button
+                type="button"
+                onClick={() =>
+                  document.getElementById("modal_eliminar_cuenta").showModal()
+                }
+                className="btn bg-error/10 hover:bg-error text-error hover:text-white border-none rounded-xl transition-colors font-bold"
+              >
+                Eliminar mi cuenta
+              </button>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
+      {/* Modal de confirmación para eliminar cuenta */}
+      <dialog id="modal_eliminar_cuenta" className="modal">
+        <div className="modal-box rounded-2xl">
+          <h3 className="font-black text-2xl text-error mb-4">
+            ¿Estás completamente seguro?
+          </h3>
+          <p className="text-base-content/70 mb-6">
+            Esta acción <strong>no se puede deshacer</strong>. Se eliminarán
+            permanentemente:
+          </p>
+          <ul className="list-disc ml-6 mb-6 text-sm text-base-content/60 space-y-1">
+            <li>Tu cuenta de usuario</li>
+            <li>Tu comercio y todos sus productos (si eres dueño)</li>
+            <li>Tus pedidos y valoraciones</li>
+            <li>Tus favoritos</li>
+          </ul>
+
+          <div className="flex flex-col gap-3">
+            <input
+              type="password"
+              placeholder="Introduce tu contraseña para confirmar"
+              className="input input-bordered w-full bg-base-200"
+              id="clave_eliminar"
+            />
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() =>
+                  document.getElementById("modal_eliminar_cuenta").close()
+                }
+                className="btn btn-ghost flex-1 rounded-xl"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const clave = document.getElementById("clave_eliminar").value;
+                  if (!clave) {
+                    toast.warning("Debes introducir tu contraseña");
+                    return;
+                  }
+                  handleDeleteAccount(clave);
+                }}
+                className="btn bg-error text-white border-none flex-1 rounded-xl"
+              >
+                Sí, eliminar mi cuenta
+              </button>
+            </div>
+          </div>
+        </div>
+        <form method="dialog" className="modal-backdrop">
+          <button>close</button>
+        </form>
+      </dialog>
     </div>
   );
 };

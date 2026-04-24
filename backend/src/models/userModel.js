@@ -61,4 +61,17 @@ async function updateUserInfo(id, campos) {
     }
 }
 
-export { getUserByEmail, createUser, getUserById , updateUserInfo};
+async function deleteUser(userId) {
+    try {
+        const [result] = await pool.query(
+            'DELETE FROM usuario WHERE id_usuario = ?',
+            [userId]
+        );
+        return result.affectedRows > 0; // true si eliminó, false si no
+    } catch (error) {
+        console.error('Error SQL en deleteUser:', error.message);
+        throw error;
+    }
+}
+
+export { getUserByEmail, createUser, getUserById , updateUserInfo, deleteUser};
