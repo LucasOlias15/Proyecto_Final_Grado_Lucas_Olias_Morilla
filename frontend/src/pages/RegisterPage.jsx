@@ -28,6 +28,9 @@ import { LocationPicker } from "../components/map/LocationPicker";
 import { Link, useLocation } from "wouter";
 
 export const RegisterPage = () => {
+
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+
   // 1. ESTADOS DEL FORMULARIO
   const [tipoCuenta, setTipoCuenta] = useState("cliente");
 
@@ -127,7 +130,7 @@ export const RegisterPage = () => {
     }
 
     try {
-      const res = await fetch("http://localhost:3000/api/users/registro", {
+      const res = await fetch(`${API_URL}/users/registro`, {
         method: "POST",
         body: paqueteDeDatos,
       });

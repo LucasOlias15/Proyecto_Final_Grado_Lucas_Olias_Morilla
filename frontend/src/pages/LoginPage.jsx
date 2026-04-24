@@ -6,6 +6,9 @@ import { ForgotPasswordModal } from "../components/common/ForgotPasswordModal";
 
 
 export const LoginPage = () => {
+
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+
   // Estados del formulario
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -20,7 +23,7 @@ export const LoginPage = () => {
     setError("");
 
     try {
-      const res = await fetch("http://localhost:3000/api/users/login", {
+      const res = await fetch(`${API_URL}/users/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, clave: password }),
