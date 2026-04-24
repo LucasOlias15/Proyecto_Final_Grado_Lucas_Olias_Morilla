@@ -1,6 +1,13 @@
 import { Router } from "express";
 import { uploadImage } from "../middlewares/cloudinary.js";
-import { registrarUsuario, loginUsuario, obtenerPerfil, actualizarPerfil, eliminarCuenta } from "../controllers/userController.js";
+import {
+  registrarUsuario,
+  loginUsuario,
+  obtenerPerfil,
+  actualizarPerfil,
+  eliminarCuenta,
+  verificarEmail,
+} from "../controllers/userController.js";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 
 const router = Router();
@@ -16,8 +23,11 @@ router.get("/perfil", authMiddleware, obtenerPerfil);
 // Login
 router.post("/login", loginUsuario);
 
+// Comprobar si el email existe para simulación de recuperción de contraseña
+router.post("/verificar-email", verificarEmail);
+
 // Actualización de datos del usuario (¡AHORA PROTEGIDO TAMBIÉN!)
-router.put("/perfil", authMiddleware, actualizarPerfil); 
+router.put("/perfil", authMiddleware, actualizarPerfil);
 
 // Eliminar la cuenta totalmente
 router.delete("/cuenta", authMiddleware, eliminarCuenta);

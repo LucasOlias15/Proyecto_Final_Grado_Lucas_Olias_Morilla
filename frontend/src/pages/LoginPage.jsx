@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Mail, Lock, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
+import { ForgotPasswordModal } from "../components/common/ForgotPasswordModal";
+
 
 export const LoginPage = () => {
   // Estados del formulario
@@ -87,8 +89,8 @@ export const LoginPage = () => {
               <label className="text-xs font-bold uppercase tracking-widest text-base-content/70 ml-1 flex justify-between">
                 <span>Contraseña</span>
                 <a
-                  href="#"
-                  className="text-jungle_teal hover:underline normal-case tracking-normal text-sm font-semibold"
+                  onClick={() => document.getElementById('forgot_password_modal').showModal()}
+                  className="text-jungle_teal hover:underline normal-case tracking-normal text-sm font-semibold cursor-pointer"
                 >
                   ¿Olvidaste tu contraseña?
                 </a>
@@ -174,6 +176,7 @@ export const LoginPage = () => {
           </div>
         </div>
       </motion.div>
+      <ForgotPasswordModal />
     </div>
   );
 };

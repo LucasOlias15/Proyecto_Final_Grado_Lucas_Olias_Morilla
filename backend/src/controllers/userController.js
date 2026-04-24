@@ -7,16 +7,13 @@ import bcrypt from 'bcrypt';
 
 export const registrarUsuario = async (req, res) => {
     try {
-        // 🐛 ¡EL BUG ESTABA AQUÍ! Solucionado igual que ayer en comercioController
         let fotoTienda = "";
         if (req.file) {
-            // Buscamos en path o en secure_url dependiendo de la respuesta de Cloudinary
             fotoTienda = req.file.path || req.file.secure_url;
         } else {
             fotoTienda = "https://res.cloudinary.com/defaik2fl/image/upload/v1776084820/Gemini_Generated_Image_cswtzlcswtzlcswt_fn6vew.png";
         }
 
-        // 🧹 LIMPIEZA: Quitamos 'ubicacion' de la destructuración (ya no existe en la BD)
         const { nombreUsuario, email, clave, rol, nombreComercio, descripcion, categoria, contacto, direccion, latitud, longitud } = req.body;
        
         // Verificamos los campos comunes a dueños y clientes que vienen en el body
@@ -44,7 +41,6 @@ export const registrarUsuario = async (req, res) => {
         // Verificar si el usuario ya existe
         const existingUser = await getUserByEmail(email);
         if (existingUser) {
-            // Se envia codigo de error en caso de que el usuario ya exista en la base de datos
             return res.status(409).json({ error: "El usuario ya existe." });
         }
 
@@ -54,10 +50,8 @@ export const registrarUsuario = async (req, res) => {
         // Si el usuario no existe, se crea uno nuevo
         let userId;
         if (rol === "cliente") {
-            // Ya no le pasamos ubicación
             userId = await createUser(nombreUsuario, email, hashedClave, rol);
         } else if (rol === "dueño") {
-            // Ya no le pasamos ubicación al usuario, pero SÍ guardamos las coordenadas en el comercio
             userId = await createUser(nombreUsuario, email, hashedClave, rol);
             await createComercio(nombreComercio, userId, descripcion, categoria, contacto, direccion, latitud, longitud, fotoTienda);
         }
@@ -98,7 +92,6 @@ export const loginUsuario = async (req, res) => {
         let rolAsignado = "usuario";
         let comercioId = null;
 
-        // Si la base de datos nos devuelve un comercio, ¡es un dueño!
         if (comercio) {
             rolAsignado = "dueño";
             comercioId = comercio.id_comercio;
@@ -142,7 +135,6 @@ export const obtenerPerfil = async (req, res) => {
             return res.status(404).json({ error: "Usuario no encontrado" });
         }
 
-        // 🧹 LIMPIEZA: Quitamos la ubicación de la respuesta
         res.json({
             nombre: user.nombre,
             email: user.email,
@@ -187,7 +179,6 @@ export const actualizarPerfil = async (req, res) => {
     try {
         const userId = req.user.id;
         
-        // 🧹 LIMPIEZA: Quitamos 'ubicacion' de la destructuración
         const { nombre, email, clave, nuevaClave } = req.body;
 
         // 1. Obtener datos actuales del usuario
@@ -213,8 +204,7 @@ export const actualizarPerfil = async (req, res) => {
         if (nombre) campos.nombre = nombre;
         if (email) campos.email = email;
         
-        // 🧹 LIMPIEZA: Eliminada la línea que guardaba la ubicación
-
+        
         if (nuevaClave) {
             campos.contraseña = await bcrypt.hash(nuevaClave, 10);
         }
@@ -241,5 +231,25 @@ export const actualizarPerfil = async (req, res) => {
     } catch (error) {
         console.error("Error al actualizar perfil:", error);
         res.status(500).json({ error: "Error interno del servidor al actualizar" });
+    }
+};
+
+export const verificarEmail = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ error: "El email es obligatorio" });
+        }
+
+        const user = await getUserByEmail(email);
+
+        return res.status(200).json({
+            existe: !!user  // true si encontró, false si no
+        });
+
+    } catch (error) {
+        console.error("Error en verificarEmail:", error);
+        return res.status(500).json({ error: "Error al verificar el email" });
     }
 };
