@@ -61,6 +61,7 @@ function App() {
           </Route>
         </Switch>
         <ToastContainer />
+        <Analytics />
       </MainLayout>
   );
 }
