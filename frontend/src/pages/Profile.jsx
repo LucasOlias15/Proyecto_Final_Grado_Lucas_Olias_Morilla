@@ -11,7 +11,10 @@ import { FavoritesDropdown } from "../components/profile/FavoritesDropdown";
 import { RatingsDropdown } from "../components/profile/RatingsDropdown";
 import useToastStore from "../store/useToastStore";
 
+
 export const Profile = () => {
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+
   const [user, setUser] = useState(null);
   const [, setLocation] = useLocation();
   const toast = useToastStore();
@@ -71,8 +74,7 @@ export const Profile = () => {
       setLoadingComercio(true);
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch(
-          "http://localhost:3000/api/comercios/mi-comercio",
+        const res = await fetch(`${API_URL}/comercios/mi-comercio`,
           {
             headers: { Authorization: `Bearer ${token}` },
           },
@@ -119,10 +121,9 @@ export const Profile = () => {
       setLoadingFavs(true);
       try {
         const [resShops, resProducts, resFavs] = await Promise.all([
-          fetch("http://localhost:3000/api/comercios"),
-          fetch("http://localhost:3000/api/productos/explorar"),
-          fetch(
-            `http://localhost:3000/api/favoritos/${user.id || user.id_usuario}`,
+         fetch(`${API_URL}/comercios`),
+          fetch(`${API_URL}/productos/explorar`),
+          fetch(`${API_URL}/favoritos/${user.id || user.id_usuario}`,
           ),
         ]);
         const dataShops = await resShops.json();
@@ -168,8 +169,7 @@ export const Profile = () => {
     setLoadingValoraciones(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(
-        `http://localhost:3000/api/valoraciones/comercio/${comercio.id_comercio}/todas`,
+      const res = await fetch(`${API_URL}/valoraciones/comercio/${comercio.id_comercio}/todas`,
         {
           headers: { Authorization: `Bearer ${token}` },
         },
@@ -190,8 +190,7 @@ export const Profile = () => {
     if (!user) return;
     setLoadingValoraciones(true);
     try {
-      const res = await fetch(
-        `http://localhost:3000/api/valoraciones/mis-valoraciones/${user.id || user.id_usuario}`,
+      const res = await fetch(`${API_URL}/valoraciones/mis-valoraciones/${user.id || user.id_usuario}`,
       );
       if (res.ok) {
         const data = await res.json();
@@ -235,8 +234,7 @@ export const Profile = () => {
     if (!comercio) return;
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(
-        `http://localhost:3000/api/comercios/${comercio.id_comercio}`,
+      const res = await fetch(`${API_URL}/comercios/${comercio.id_comercio}`,
         {
           method: "PUT",
           headers: {
@@ -253,8 +251,7 @@ export const Profile = () => {
       if (imagenFile) {
         const formDataImg = new FormData();
         formDataImg.append("imagen", imagenFile);
-        const imgRes = await fetch(
-          `http://localhost:3000/api/comercios/${comercio.id_comercio}/imagen`,
+        const imgRes = await fetch(`${API_URL}/comercios/${comercio.id_comercio}/imagen`,
           {
             method: "PUT",
             headers: { Authorization: `Bearer ${token}` },

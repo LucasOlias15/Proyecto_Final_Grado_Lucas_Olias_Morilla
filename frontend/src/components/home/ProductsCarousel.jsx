@@ -5,6 +5,9 @@ import { ChevronLeft, ChevronRight, ShoppingBasket, Store } from "lucide-react";
 import { Link } from "wouter";
 
 export const ProductsCarousel = () => {
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+
+
   const carouselRef = useRef(null);
 
   // 1. ESTADOS PARA LOS DATOS REALES
@@ -19,7 +22,7 @@ export const ProductsCarousel = () => {
   useEffect(() => {
     const fetchFeaturedProducts = async () => {
       try {
-        const res = await fetch("http://localhost:3000/api/productos/explorar");
+        const res = await fetch(`${API_URL}/productos/explorar`);
         const data = await res.json();
 
         // Cogemos solo los primeros 8 productos para no saturar el carrusel

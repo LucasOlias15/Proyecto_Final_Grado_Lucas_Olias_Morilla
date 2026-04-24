@@ -3,6 +3,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Mail, Send, CheckCircle2, XCircle, ArrowLeft } from "lucide-react";
 
 export const ForgotPasswordModal = () => {
+
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+
   const [email, setEmail] = useState("");
   const [paso, setPaso] = useState("formulario"); // "formulario" | "verificando" | "enviado" | "no_existe" | "error"
   const [mensajeError, setMensajeError] = useState("");
@@ -15,7 +18,7 @@ export const ForgotPasswordModal = () => {
 
     try {
       // 1. Verificar si el email existe en la BD
-      const res = await fetch("http://localhost:3000/api/users/verificar-email", {
+      const res = await  fetch(`${API_URL}/users/verificar-email`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email.trim() }),

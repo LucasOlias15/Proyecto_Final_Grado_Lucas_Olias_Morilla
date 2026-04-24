@@ -12,6 +12,9 @@ import { motion } from "framer-motion";
 import useToastStore from "../store/useToastStore";
 
 export const ExplorePage = () => {
+
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+
   // --- Datos ---
   const [shops, setShops] = useState([]);
   const [products, setProducts] = useState([]);
@@ -65,8 +68,8 @@ export const ExplorePage = () => {
       try {
         setIsLoading(true);
         const [resShops, resProducts] = await Promise.all([
-          fetch("http://localhost:3000/api/comercios"),
-          fetch("http://localhost:3000/api/productos/explorar"),
+          fetch(`${API_URL}/comercios`),
+          fetch(`${API_URL}/productos/explorar`),
         ]);
 
         const dataShops = await resShops.json();
@@ -76,8 +79,7 @@ export const ExplorePage = () => {
         setProducts(dataProducts);
 
         if (usuario) {
-          const resFavs = await fetch(
-            `http://localhost:3000/api/favoritos/${usuario.id || usuario.id_usuario}`,
+          const resFavs = await fetch(`${API_URL}/favoritos/${usuario.id || usuario.id_usuario}`,
           );
           if (resFavs.ok) {
             const dataFavs = await resFavs.json();
@@ -132,8 +134,7 @@ export const ExplorePage = () => {
     if (tipo === "comercio") payload.id_comercio = id;
 
     try {
-      const res = await fetch(
-        `http://localhost:3000/api/favoritos/toggleFavs`,
+      const res = await fetch(`${API_URL}/favoritos/toggleFavs`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

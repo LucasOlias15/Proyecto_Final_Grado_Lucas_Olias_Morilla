@@ -16,7 +16,16 @@ import pedidoRoutes from "./routes/pedidoRoutes.js"
 
 const app = express();
 
-app.use(cors()); // CORS para React
+app.use(cors({
+  origin: [
+    "https://proyecto-final-grado-lucas-olias-mo.vercel.app/",      // URL vercel desplegada
+    "http://localhost:5173",           // Para desarrollo local
+    "http://localhost:3000"            // Por si acaso
+  ],
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
 app.use(express.json()); // Parsear JSON del body
 
 // 3. Enrutadores

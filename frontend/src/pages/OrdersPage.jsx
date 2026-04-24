@@ -24,6 +24,10 @@ import useToastStore from "../store/useToastStore";
 import { ContactModal } from "../components/common/ContactModal";
 
 export const OrdersPage = () => {
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+
+
   // ========================================================================
   // 1. ESTADOS DE LA APLICACIÓN
   // ========================================================================
@@ -63,8 +67,7 @@ export const OrdersPage = () => {
 
     const fetchMisPedidos = async () => {
       try {
-        const response = await fetch(
-          `http://localhost:3000/api/pedidos/usuario/${userId}`,
+        const response = await fetch(`${API_URL}/pedidos/usuario/${userId}`,
         );
         if (response.ok) {
           const data = await response.json();
@@ -90,8 +93,7 @@ export const OrdersPage = () => {
 
     const fetchMisValoraciones = async () => {
       try {
-        const res = await fetch(
-          `http://localhost:3000/api/valoraciones/mis-valoraciones/${userId}`,
+        const res = await fetch(`${API_URL}/valoraciones/mis-valoraciones/${userId}`,
         );
         if (res.ok) {
           const data = await res.json();
@@ -215,7 +217,7 @@ export const OrdersPage = () => {
     setEnviandoValoracion(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:3000/api/valoraciones", {
+      const res = await  fetch(`${API_URL}/valoraciones`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

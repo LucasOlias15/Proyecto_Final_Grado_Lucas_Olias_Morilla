@@ -6,6 +6,9 @@ import { Heart, ShieldBan } from "lucide-react";
 import { ContactModal } from "../components/common/ContactModal";
 
 export const ShopDetail = () => {
+
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+
   const [, params] = useRoute("/tienda/:id");
 
   // Rescatamos al usuario de forma segura
@@ -32,8 +35,8 @@ export const ShopDetail = () => {
 
         // 1. Pedimos tienda y productos (para todos)
         const [resProductos, resComercio] = await Promise.all([
-          fetch(`http://localhost:3000/api/productos/comercio/${params.id}`),
-          fetch(`http://localhost:3000/api/comercios/${params.id}`),
+          fetch(`${API_URL}/productos/comercio/${params.id}`),
+          fetch(`${API_URL}/comercios/${params.id}`),
         ]);
 
         if (!resComercio.ok) {
@@ -47,8 +50,7 @@ export const ShopDetail = () => {
         // 2. Pedimos favoritos (SOLO si hay usuario)
         if (usuario) {
           const userId = usuario.id || usuario.id_usuario;
-          const resFavs = await fetch(
-            `http://localhost:3000/api/favoritos/${userId}`,
+          const resFavs = await fetch(`${API_URL}/favoritos/${userId}`,
           );
           if (resFavs.ok) {
             const dataFavs = await resFavs.json();
@@ -119,7 +121,7 @@ export const ShopDetail = () => {
 
     // Enviamos a la BD
     try {
-      await fetch(`http://localhost:3000/api/favoritos/toggleFavs`, {
+      await fetch(`${API_URL}/favoritos/toggleFavs`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

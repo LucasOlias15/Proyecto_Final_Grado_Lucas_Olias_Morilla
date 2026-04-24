@@ -9,7 +9,10 @@ export const ProfileSettings = ({
   showSettings,
   setShowSettings,
 }) => {
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+  
   const toast = useToastStore();
+  
 
   const [formData, setFormData] = useState({
     nombre: "",
@@ -48,7 +51,7 @@ export const ProfileSettings = ({
     const handleDeleteAccount = async (clave) => {
       try {
         const token = localStorage.getItem("token");
-        const response = await fetch("http://localhost:3000/api/users/cuenta", {
+        const response = await fetch(`${API_URL}/users/cuenta`, {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
@@ -82,7 +85,7 @@ export const ProfileSettings = ({
     };
 
     try {
-      const response = await fetch(`http://localhost:3000/api/users/perfil`, {
+      const response = await fetch(`${API_URL}/users/perfil`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
