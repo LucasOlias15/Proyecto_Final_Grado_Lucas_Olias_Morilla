@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useCartStore } from "../../store/useCartStore";  
 import { useState } from "react";
 import { Link } from "wouter";
-import { ShoppingCart, UserLock } from "lucide-react";
+import { ShoppingCart, Trash2, UserLock } from "lucide-react";
 import useToastStore from "../../store/useToastStore";      
 
 export const CartDrawer = ({ isOpen, onClose }) => {
@@ -134,7 +134,7 @@ export const CartDrawer = ({ isOpen, onClose }) => {
               {/* --- LÓGICA DE VISTAS --- */}
               {!userId ? (
                 <div className="flex-1 flex flex-col items-center justify-center p-6 text-center opacity-80">
-                  <span className="text-6xl mb-4"><UserLock/></span>
+                  <span className="text-6xl mb-4"><UserLock className="w-18 h-18 mb-2"/></span>
                   <p className="font-bold text-xl mb-2">
                     Inicia sesión para comprar
                   </p>
@@ -214,24 +214,7 @@ export const CartDrawer = ({ isOpen, onClose }) => {
                         onClick={() => removeFromCart(userId, item.id_producto)}
                         className="text-base-content/20 hover:text-error transition-colors p-2 cursor-pointer"
                       >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="lucide lucide-trash2-icon lucide-trash-2"
-                        >
-                          <path d="M10 11v6" />
-                          <path d="M14 11v6" />
-                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
-                          <path d="M3 6h18" />
-                          <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                        </svg>
+                      <Trash2/>
                       </button>
                     </div>
                   ))}

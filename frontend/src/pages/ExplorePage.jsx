@@ -91,7 +91,7 @@ export const ExplorePage = () => {
           if (resFavs.ok) {
             const dataFavs = await resFavs.json();
 
-            // 👇 2. SEPARAMOS LOS FAVORITOS AL RECIBIRLOS DEL BACKEND 👇
+            // 2. SEPARAMOS LOS FAVORITOS AL RECIBIRLOS DEL BACKEND 
             setFavProductos(
               dataFavs
                 .filter((fav) => fav.id_producto)
@@ -114,7 +114,6 @@ export const ExplorePage = () => {
 
     fetchData();
     const recargarCatalogo = () => {
-      // Volvemos a hacer la petición al backend silenciosamente para tener los stocks actualizados
       fetchData();
     };
 
@@ -126,7 +125,7 @@ export const ExplorePage = () => {
     };
   }, [searchString]);
 
-  // 👇 3. FUNCIÓN INTELIGENTE PARA MANEJAR AMBOS TIPOS 👇
+  // 3. FUNCIÓN INTELIGENTE PARA MANEJAR AMBOS TIPOS 
   const handleToggleFavorito = async (e, id, tipo) => {
     e.preventDefault();
     e.stopPropagation(); // MUY IMPORTANTE: Evita que el clic en el corazón te lleve a la tienda
@@ -151,7 +150,7 @@ export const ExplorePage = () => {
 
       if (res.ok) {
         if (data.isFavorite) {
-          toast.success(data.message || "Añadido a favoritos");
+          toast.success(data.message || "Añadido el producto");
           if (tipo === "producto") setFavProductos((prev) => [...prev, id]);
           if (tipo === "comercio") setFavComercios((prev) => [...prev, id]);
         } else {
@@ -303,7 +302,7 @@ export const ExplorePage = () => {
                       href={`/tienda/${shop.id_comercio}`}
                     >
                       <div className="card bg-base-100/80 backdrop-blur-md shadow-sm border border-base-200 hover:shadow-md transition-all rounded-3xl cursor-pointer h-full">
-                        {/* 👇 4. LE HEMOS AÑADIDO 'relative' Y EL BOTÓN DE CORAZÓN A LOS COMERCIOS 👇 */}
+
                         <figure className="h-48 bg-base-200 overflow-hidden rounded-t-3xl relative">
                           <img
                             className="w-full h-full object-cover"
@@ -394,13 +393,15 @@ export const ExplorePage = () => {
                             <h2 className="card-title text-base m-0 leading-tight">
                               {product.nombre}
                             </h2>
-                            <p
-                              className={`text-xs font-bold m-0 shrink-0 whitespace-nowrap pt-1 ${product.stock > 0 ? "opacity-60" : "text-error"}`}
-                            >
-                              {product.stock > 0
-                                ? `Stock: ${product.stock}`
-                                : "Agotado"}
-                            </p>
+                             {product.stock <= 0 ? (
+                          <span className="text-[10px] font-bold text-error uppercase mt-1 bg-error/10 px-2 py-0.5 rounded-full">
+                            Agotado
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-medium text-base-content/50 mt-1">
+                            Stock: {product.stock}
+                          </span>
+                        )}
                           </div>
                           <p className="text-xs text-base-content/60 line-clamp-2">
                             {product.descripcion}

@@ -5,8 +5,7 @@ import { ChevronLeft, ChevronRight, ShoppingBasket, Store } from "lucide-react";
 import { Link } from "wouter";
 
 export const ProductsCarousel = () => {
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
-
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 
   const carouselRef = useRef(null);
 
@@ -148,10 +147,18 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
                         <h3 className="text-lg font-bold text-base-content line-clamp-1 group-hover:text-jungle_teal transition-colors">
                           {product.nombre}
                         </h3>
-                        {/* ✨ ETIQUETA VISUAL DE AGOTADO ✨ */}
-                        {product.stock <= 0 && (
-                          <span className="text-[10px] font-bold text-error uppercase mt-1">
+
+                        {product.stock <= 0 ? (
+                          <span className="text-[10px] font-bold text-error uppercase mt-1 bg-error/10 px-2 py-0.5 rounded-full">
                             Agotado
+                          </span>
+                        ) : product.stock <= 5 ? (
+                          <span className="text-[10px] font-bold text-amber-600 mt-1">
+                            ¡Solo {product.stock}!
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-medium text-base-content/50 mt-1">
+                            Stock: {product.stock}
                           </span>
                         )}
                       </div>
